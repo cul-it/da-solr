@@ -7,6 +7,12 @@ INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("alien d
 INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("aliens", "Noncitizens");
 INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("illegal immigration", "Undocumented immigratio");
 INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("illegal immigration in literature", "Undocumented immigration in literature");
+INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("> 20th century > History", "Two subdivisions mapped");
+INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("> 20th century", "Subdivision map");
+INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("20th Century", "Main heading map");
+INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("Lilies", "Roses");
+INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("Roses", "Daisies");
+INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("Main Heading > Subdivision", "Grapes");
 
 -- Heading2SolrTest data
 

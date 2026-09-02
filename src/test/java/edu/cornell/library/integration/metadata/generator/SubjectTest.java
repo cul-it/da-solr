@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.junit.BeforeClass;
@@ -12,6 +13,7 @@ import org.junit.Test;
 import edu.cornell.library.integration.db_test.DbBaseTest;
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.metadata.support.ReplacementHeadings;
 
 public class SubjectTest extends DbBaseTest {
 	SolrFieldGenerator gen = new Subject();
@@ -25,6 +27,9 @@ public class SubjectTest extends DbBaseTest {
 	@BeforeClass
 	public static void setup() throws IOException, SQLException {
 		setup("Headings");
+		try (Connection headings = config.getDatabaseConnection("Headings")) {
+			ReplacementHeadings.initialize(headings);
+		}
 	}
 
 	@Test
@@ -35,10 +40,10 @@ public class SubjectTest extends DbBaseTest {
 		"subject_t: Submerged lands > United States\n"+
 		"subject_topic_facet: Submerged lands\n"+
 		"subject_topic_filing: submerged lands\n"+
-		"subject_topic_lc_facet: Submerged lands\n"+
-		"subject_topic_lc_filing: submerged lands\n"+
 		"subject_topic_facet: Submerged lands > United States\n"+
 		"subject_topic_filing: submerged lands 0000 united states\n"+
+		"subject_topic_lc_facet: Submerged lands\n"+
+		"subject_topic_lc_filing: submerged lands\n"+
 		"subject_topic_lc_facet: Submerged lands > United States\n"+
 		"subject_topic_lc_filing: submerged lands 0000 united states\n"+
 		"subject_sub_lc_facet: United States\n"+
@@ -46,10 +51,10 @@ public class SubjectTest extends DbBaseTest {
 		"subject_json: [{\"subject\":\"Submerged lands\",\"authorized\":true,\"type\":\"Topical Term\"},"
 		+ "{\"subject\":\"United States.\",\"authorized\":false}]\n"+
 		"subject_display: Submerged lands > United States\n"+
+		"authority_subject_t: Lands beneath navigable waters\n"+
+		"authority_subject_t: Lands under the marginal sea\n"+
 		"authority_subject_t: Submerged coastal lands\n"+
 		"authority_subject_t: Tidelands\n"+
-		"authority_subject_t: Lands under the marginal sea\n"+
-		"authority_subject_t: Lands beneath navigable waters\n"+
 		"fast_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
@@ -63,10 +68,10 @@ public class SubjectTest extends DbBaseTest {
 		"subject_t: Submerged lands > United States\n"+
 		"subject_topic_facet: Submerged lands\n"+
 		"subject_topic_filing: submerged lands\n"+
-		"subject_topic_lc_facet: Submerged lands\n"+
-		"subject_topic_lc_filing: submerged lands\n"+
 		"subject_topic_facet: Submerged lands > United States\n"+
 		"subject_topic_filing: submerged lands 0000 united states\n"+
+		"subject_topic_lc_facet: Submerged lands\n"+
+		"subject_topic_lc_filing: submerged lands\n"+
 		"subject_topic_lc_facet: Submerged lands > United States\n"+
 		"subject_topic_lc_filing: submerged lands 0000 united states\n"+
 		"subject_sub_lc_facet: United States\n"+
@@ -80,10 +85,10 @@ public class SubjectTest extends DbBaseTest {
 		"subject_json: [{\"subject\":\"Submerged lands\",\"authorized\":true,\"type\":\"Topical Term\"},"
 		+ "{\"subject\":\"United States.\",\"authorized\":false}]\n"+
 		"subject_display: Submerged lands > United States\n"+
+		"authority_subject_t: Lands beneath navigable waters\n"+
+		"authority_subject_t: Lands under the marginal sea\n"+
 		"authority_subject_t: Submerged coastal lands\n"+
 		"authority_subject_t: Tidelands\n"+
-		"authority_subject_t: Lands under the marginal sea\n"+
-		"authority_subject_t: Lands beneath navigable waters\n"+
 		"fast_b: true\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
@@ -191,10 +196,10 @@ public class SubjectTest extends DbBaseTest {
 		"subject_corp_filing: 朝日新聞 0000 indexes\n"+
 		"subject_corp_facet: Asahi Shinbun\n"+
 		"subject_corp_filing: asahi shinbun\n"+
-		"subject_corp_lc_facet: Asahi Shinbun\n"+
-		"subject_corp_lc_filing: asahi shinbun\n"+
 		"subject_corp_facet: Asahi Shinbun > Indexes\n"+
 		"subject_corp_filing: asahi shinbun 0000 indexes\n"+
+		"subject_corp_lc_facet: Asahi Shinbun\n"+
+		"subject_corp_lc_filing: asahi shinbun\n"+
 		"subject_corp_lc_facet: Asahi Shinbun > Indexes\n"+
 		"subject_corp_lc_filing: asahi shinbun 0000 indexes\n"+
 		"subject_sub_lc_facet: Indexes\n"+
@@ -221,10 +226,10 @@ public class SubjectTest extends DbBaseTest {
 		"subject_json: [{\"subject\":\"Electronic books.\",\"authorized\":true,\"type\":\"Topical Term\"}]\n"+
 		"subject_display: Electronic books\n"+
 		"authority_subject_t: Books in machine-readable form\n"+
-		"authority_subject_t: Ebooks\n"+
-		"authority_subject_t: E-books\n"+
-		"authority_subject_t: Online books\n"+
 		"authority_subject_t: Digital books\n"+
+		"authority_subject_t: E-books\n"+
+		"authority_subject_t: Ebooks\n"+
+		"authority_subject_t: Online books\n"+
 		"fast_b: false\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
@@ -252,7 +257,7 @@ public class SubjectTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(1,"653",' ',' ',"‡a Art and Architecture (Core)"));
 		String expected =
 		"sixfivethree: Art and Architecture (Core)\n" +
-		"subject_t: Art and Architecture (Core)\n" +
+		"subject_t: Art and Architecture\n" +
 		"subject_gen_facet: Art and Architecture\n" +
 		"subject_gen_filing: art and architecture\n" +
 		"subject_gen_unk_facet: Art and Architecture\n" +
@@ -286,31 +291,33 @@ public class SubjectTest extends DbBaseTest {
 		rec.dataFields.add(new DataField(9,"650",' ','4',"‡a Immigration law ‡z United States."));
 		rec.dataFields.add(new DataField(10,"650",' ','7',"‡a Illegal aliens. ‡2 fast ‡0 (OCoLC)fst00967153"));
 		String expected =
+		"subject_overlay_facet: illegal aliens\n"+
 		"subject_overlay_facet: Undocumented immigrants\n"+
 		"subject_t: Undocumented immigrants > United States\n" + 
 		"subject_topic_facet: Undocumented immigrants\n" + 
 		"subject_topic_filing: undocumented immigrants\n" + 
-		"subject_topic_lc_facet: Illegal aliens\n" + 
-		"subject_topic_lc_filing: illegal aliens\n" + 
 		"subject_topic_facet: Undocumented immigrants > United States\n" +
 		"subject_topic_filing: undocumented immigrants 0000 united states\n" + 
+		"subject_topic_lc_facet: Illegal aliens\n" + 
+		"subject_topic_lc_filing: illegal aliens\n" + 
 		"subject_topic_lc_facet: Illegal aliens > United States\n" + 
 		"subject_topic_lc_filing: illegal aliens 0000 united states\n" + 
 		"subject_sub_lc_facet: United States\n"+
 		"subject_sub_lc_filing: united states\n"+
 
+		"subject_overlay_facet: illegal aliens\n"+
 		"subject_overlay_facet: Undocumented immigrants\n"+
 		"subject_t: Undocumented immigrants > Government policy > United States\n" + 
 		"subject_topic_facet: Undocumented immigrants\n" + 
 		"subject_topic_filing: undocumented immigrants\n" +
-		"subject_topic_lc_facet: Illegal aliens\n" + 
-		"subject_topic_lc_filing: illegal aliens\n" + 
 		"subject_topic_facet: Undocumented immigrants > Government policy\n" + 
 		"subject_topic_filing: undocumented immigrants 0000 government policy\n" +
-		"subject_topic_lc_facet: Illegal aliens > Government policy\n" + 
-		"subject_topic_lc_filing: illegal aliens 0000 government policy\n" + 
 		"subject_topic_facet: Undocumented immigrants > Government policy > United States\n" + 
 		"subject_topic_filing: undocumented immigrants 0000 government policy 0000 united states\n" + 
+		"subject_topic_lc_facet: Illegal aliens\n" + 
+		"subject_topic_lc_filing: illegal aliens\n" + 
+		"subject_topic_lc_facet: Illegal aliens > Government policy\n" + 
+		"subject_topic_lc_filing: illegal aliens 0000 government policy\n" + 
 		"subject_topic_lc_facet: Illegal aliens > Government policy > United States\n" +
 		"subject_topic_lc_filing: illegal aliens 0000 government policy 0000 united states\n" +
 		"subject_sub_lc_facet: Government policy\n"+
@@ -320,31 +327,33 @@ public class SubjectTest extends DbBaseTest {
 		"subject_sub_lc_facet: United States\n"+
 		"subject_sub_lc_filing: united states\n"+
 
+		"subject_overlay_facet: illegal alien children\n"+
 		"subject_overlay_facet: Undocumented immigrant children\n"+
 		"subject_t: Undocumented immigrant children > United States\n" + 
 		"subject_topic_facet: Undocumented immigrant children\n" + 
 		"subject_topic_filing: undocumented immigrant children\n" + 
-		"subject_topic_lc_facet: Illegal alien children\n" + 
-		"subject_topic_lc_filing: illegal alien children\n" + 
 		"subject_topic_facet: Undocumented immigrant children > United States\n" + 
 		"subject_topic_filing: undocumented immigrant children 0000 united states\n" +
+		"subject_topic_lc_facet: Illegal alien children\n" + 
+		"subject_topic_lc_filing: illegal alien children\n" + 
 		"subject_topic_lc_facet: Illegal alien children > United States\n" +
 		"subject_topic_lc_filing: illegal alien children 0000 united states\n" +
 		"subject_sub_lc_facet: United States\n"+
 		"subject_sub_lc_filing: united states\n"+
 
+		"subject_overlay_facet: illegal alien children\n"+
 		"subject_overlay_facet: Undocumented immigrant children\n"+
 		"subject_t: Undocumented immigrant children > Government policy > United States\n" + 
 		"subject_topic_facet: Undocumented immigrant children\n" + 
 		"subject_topic_filing: undocumented immigrant children\n" + 
-		"subject_topic_lc_facet: Illegal alien children\n" + 
-		"subject_topic_lc_filing: illegal alien children\n" + 
 		"subject_topic_facet: Undocumented immigrant children > Government policy\n" + 
 		"subject_topic_filing: undocumented immigrant children 0000 government policy\n" + 
-		"subject_topic_lc_facet: Illegal alien children > Government policy\n" +
-		"subject_topic_lc_filing: illegal alien children 0000 government policy\n" +
 		"subject_topic_facet: Undocumented immigrant children > Government policy > United States\n" + 
 		"subject_topic_filing: undocumented immigrant children 0000 government policy 0000 united states\n" + 
+		"subject_topic_lc_facet: Illegal alien children\n" + 
+		"subject_topic_lc_filing: illegal alien children\n" + 
+		"subject_topic_lc_facet: Illegal alien children > Government policy\n" +
+		"subject_topic_lc_filing: illegal alien children 0000 government policy\n" +
 		"subject_topic_lc_facet: Illegal alien children > Government policy > United States\n" + 
 		"subject_topic_lc_filing: illegal alien children 0000 government policy 0000 united states\n" + 
 		"subject_sub_lc_facet: Government policy\n"+
@@ -357,14 +366,14 @@ public class SubjectTest extends DbBaseTest {
 		"subject_t: United States > Emigration and immigration > Government policy\n" + 
 		"subject_topic_facet: United States\n" +
 		"subject_topic_filing: united states\n" +
-		"subject_topic_lc_facet: United States\n" +
-		"subject_topic_lc_filing: united states\n" +
 		"subject_topic_facet: United States > Emigration and immigration\n" + 
 		"subject_topic_filing: united states 0000 emigration and immigration\n" + 
-		"subject_topic_lc_facet: United States > Emigration and immigration\n" + 
-		"subject_topic_lc_filing: united states 0000 emigration and immigration\n" + 
 		"subject_topic_facet: United States > Emigration and immigration > Government policy\n" + 
 		"subject_topic_filing: united states 0000 emigration and immigration 0000 government policy\n" + 
+		"subject_topic_lc_facet: United States\n" +
+		"subject_topic_lc_filing: united states\n" +
+		"subject_topic_lc_facet: United States > Emigration and immigration\n" + 
+		"subject_topic_lc_filing: united states 0000 emigration and immigration\n" + 
 		"subject_topic_lc_facet: United States > Emigration and immigration > Government policy\n" + 
 		"subject_topic_lc_filing: united states 0000 emigration and immigration 0000 government policy\n" + 
 		"subject_sub_lc_facet: Emigration and immigration\n"+
@@ -377,10 +386,10 @@ public class SubjectTest extends DbBaseTest {
 		"subject_t: Emigration and immigration law > United States\n" + 
 		"subject_topic_facet: Emigration and immigration law\n" +
 		"subject_topic_filing: emigration and immigration law\n" +
-		"subject_topic_lc_facet: Emigration and immigration law\n" +
-		"subject_topic_lc_filing: emigration and immigration law\n"+ 
 		"subject_topic_facet: Emigration and immigration law > United States\n" + 
 		"subject_topic_filing: emigration and immigration law 0000 united states\n" + 
+		"subject_topic_lc_facet: Emigration and immigration law\n" +
+		"subject_topic_lc_filing: emigration and immigration law\n"+ 
 		"subject_topic_lc_facet: Emigration and immigration law > United States\n" + 
 		"subject_topic_lc_filing: emigration and immigration law 0000 united states\n" + 
 		"subject_sub_lc_facet: United States\n"+
@@ -396,6 +405,7 @@ public class SubjectTest extends DbBaseTest {
 		"subject_sub_other_filing: american government\n"+
 
 		// related to "sears" vocab term
+		"subject_overlay_facet: illegal aliens\n"+
 		"subject_overlay_facet: Undocumented immigrants\n"+
 		"subject_t: Undocumented immigrants > United States\n" +
 		"subject_topic_other_facet: Illegal aliens\n" + 
@@ -408,15 +418,16 @@ public class SubjectTest extends DbBaseTest {
 		"subject_t: Immigration law > United States\n" + 
 		"subject_topic_facet: Immigration law\n" + 
 		"subject_topic_filing: immigration law\n" +
-		"subject_topic_unk_facet: Immigration law\n" + 
-		"subject_topic_unk_filing: immigration law\n" + 
 		"subject_topic_facet: Immigration law > United States\n" + 
 		"subject_topic_filing: immigration law 0000 united states\n" + 
+		"subject_topic_unk_facet: Immigration law\n" + 
+		"subject_topic_unk_filing: immigration law\n" + 
 		"subject_topic_unk_facet: Immigration law > United States\n" + 
 		"subject_topic_unk_filing: immigration law 0000 united states\n" + 
 		"subject_sub_unk_facet: United States\n"+
 		"subject_sub_unk_filing: united states\n"+
 
+		"subject_overlay_facet: illegal aliens\n"+
 		"subject_overlay_facet: Undocumented immigrants\n"+
 		"subject_t: Undocumented immigrants\n" + 
 		"fast_topic_facet: Undocumented immigrants\n" +
@@ -425,10 +436,10 @@ public class SubjectTest extends DbBaseTest {
 		"subject_topic_fast_facet: Illegal aliens\n" + 
 		"subject_topic_fast_filing: illegal aliens\n" + 
 
-		"subject_json: [{\"subject\":\"Undocumented immigrants\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
-		"subject_json: [{\"subject\":\"Undocumented immigrants\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"Government policy\",\"authorized\":false},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
-		"subject_json: [{\"subject\":\"Undocumented immigrant children\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
-		"subject_json: [{\"subject\":\"Undocumented immigrant children\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"Government policy\",\"authorized\":false},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
+		"subject_json: [{\"subject\":\"Undocumented immigrants\",\"authorized\":false,\"type\":\"Topical Term\"},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
+		"subject_json: [{\"subject\":\"Undocumented immigrants\",\"authorized\":false,\"type\":\"Topical Term\"},{\"subject\":\"Government policy\",\"authorized\":false},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
+		"subject_json: [{\"subject\":\"Undocumented immigrant children\",\"authorized\":false,\"type\":\"Topical Term\"},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
+		"subject_json: [{\"subject\":\"Undocumented immigrant children\",\"authorized\":false,\"type\":\"Topical Term\"},{\"subject\":\"Government policy\",\"authorized\":false},{\"subject\":\"United States.\",\"authorized\":false}]\n" + 
 		"subject_json: [{\"subject\":\"United States\",\"authorized\":false,\"type\":\"Topical Term\"},{\"subject\":\"Emigration and immigration\",\"authorized\":false},{\"subject\":\"Government policy.\",\"authorized\":false}]\n" + 
 		"subject_json: [{\"subject\":\"Emigration and immigration law\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"United States.\",\"authorized\":true}]\n" + 
 //		"subject_json: [{\"subject\":\"POLITICAL SCIENCE\",\"authorized\":true,\"type\":\"Topical Term\"},{\"subject\":\"American Government.\",\"authorized\":false}]\n" + 
@@ -443,32 +454,40 @@ public class SubjectTest extends DbBaseTest {
 //		"subject_display: POLITICAL SCIENCE > American Government\n" + 
 		"subject_display: Immigration law > United States\n" + 
 
-		"authority_subject_t: Law, Immigration\n" + 
 		"authority_subject_t: Administration\n" + 
-		"authority_subject_t: Political theory\n" + 
-		"authority_subject_t: Emigration and immigration > Law and legislation\n" + 
-		"authority_subject_t: Illegal aliens.\n" + 
-		"authority_subject_t: United States > Emigration and immigration law\n" + 
-		"authority_subject_t: Government\n" + 
-		"authority_subject_t: Illegal aliens > Legal status, laws, etc.\n" + 
-		"authority_subject_t: Immigration law\n" + 
-		"authority_subject_t: Immigrants > Legal status, laws, etc.\n" + 
-		"authority_subject_t: Law, Emigration\n" + 
-		"authority_subject_t: Illegal immigration\n" + 
-		"authority_subject_t: Illegal aliens\n" + 
-		"authority_subject_t: Illegal immigrants\n" + 
+		"authority_subject_t: Aliens > Legal status, laws, etc.\n" + 
 		"authority_subject_t: Aliens, Illegal\n" + 
 		"authority_subject_t: Civil government\n" + 
-		"authority_subject_t: Science, Political\n" + 
-		"authority_subject_t: Undocumented children\n" + 
 		"authority_subject_t: Commonwealth, The\n" + 
+		"authority_subject_t: Emigration and immigration > Law and legislation\n" + 
+		"authority_subject_t: Government\n" + 
+		"authority_subject_t: Illegal alien children > Government policy > United States.\n" + 
+		"authority_subject_t: Illegal alien children > United States.\n" + 
+		"authority_subject_t: Illegal aliens > Government policy > United States.\n" + 
+		"authority_subject_t: Illegal aliens > Legal status, laws, etc.\n" + 
+		"authority_subject_t: Illegal aliens > United States.\n" + 
+		"authority_subject_t: Illegal aliens.\n" + 
+		"authority_subject_t: Illegal immigrants\n" + 
+		"authority_subject_t: Illegal immigration\n" + 
+		"authority_subject_t: Immigrants > Legal status, laws, etc.\n" + 
+		"authority_subject_t: Immigration law\n" + 
+		"authority_subject_t: Law, Emigration\n" + 
+		"authority_subject_t: Law, Immigration\n" + 
+		"authority_subject_t: Political theory\n" + 
 		"authority_subject_t: Political thought\n" + 
-		"authority_subject_t: Aliens > Legal status, laws, etc.\n" + 
 		"authority_subject_t: Politics\n" + 
+		"authority_subject_t: Science, Political\n" + 
 		"authority_subject_t: Undocumented aliens\n" + 
-		"authority_subject_t: Illegal alien children\n" + 
+		"authority_subject_t: Undocumented children\n" + 
+		"authority_subject_t: United States > Emigration and immigration law\n" + 
+
 		"fast_b: true\n";
 		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
+	}
+
+	@Test
+	public void testOverlayUnwantedSubdivisions() {
+		
 	}
 
 	@Test // Should not populate vocabulary-specific fields intended for authority control
@@ -501,10 +520,10 @@ public class SubjectTest extends DbBaseTest {
 		"subject_pers_filing: 張耒 1054 1114 0000 chronology\n"+
 		"subject_pers_facet: Zhang, Lei, 1054-1114\n"+
 		"subject_pers_filing: zhang lei 1054 1114\n"+
-		"subject_pers_lc_facet: Zhang, Lei, 1054-1114\n"+
-		"subject_pers_lc_filing: zhang lei 1054 1114\n"+
 		"subject_pers_facet: Zhang, Lei, 1054-1114 > Chronology\n"+
 		"subject_pers_filing: zhang lei 1054 1114 0000 chronology\n"+
+		"subject_pers_lc_facet: Zhang, Lei, 1054-1114\n"+
+		"subject_pers_lc_filing: zhang lei 1054 1114\n"+
 		"subject_pers_lc_facet: Zhang, Lei, 1054-1114 > Chronology\n"+
 		"subject_pers_lc_filing: zhang lei 1054 1114 0000 chronology\n"+
 		"subject_sub_lc_facet: Chronology\n"+
@@ -594,10 +613,10 @@ public class SubjectTest extends DbBaseTest {
 		"subject_t: Interior decoration > Study and teaching\n"+
 		"subject_topic_facet: Interior decoration\n"+
 		"subject_topic_filing: interior decoration\n"+
-		"subject_topic_lc_facet: Interior decoration\n"+
-		"subject_topic_lc_filing: interior decoration\n"+
 		"subject_topic_facet: Interior decoration > Study and teaching\n"+
 		"subject_topic_filing: interior decoration 0000 study and teaching\n"+
+		"subject_topic_lc_facet: Interior decoration\n"+
+		"subject_topic_lc_filing: interior decoration\n"+
 		"subject_topic_lc_facet: Interior decoration > Study and teaching\n"+
 		"subject_topic_lc_filing: interior decoration 0000 study and teaching\n"+
 

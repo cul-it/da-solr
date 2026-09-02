@@ -4,7 +4,6 @@ import static edu.cornell.library.integration.utilities.CharacterSetUtils.isCJK;
 import static edu.cornell.library.integration.utilities.FilingNormalization.getFilingForm;
 import static edu.cornell.library.integration.utilities.IndexingUtilities.removeTrailingPunctuation;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Duration;
@@ -12,14 +11,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.marc.DataField;
@@ -29,6 +29,9 @@ import edu.cornell.library.integration.marc.Subfield;
 import edu.cornell.library.integration.metadata.support.AuthorityData;
 import edu.cornell.library.integration.metadata.support.HeadingCategory;
 import edu.cornell.library.integration.metadata.support.HeadingType;
+import edu.cornell.library.integration.metadata.support.ReplacementHeadings;
+import edu.cornell.library.integration.metadata.support.ReplacementHeadings.ReplaceHead;
+import edu.cornell.library.integration.metadata.support.ReplacementHeadings.ReplaceResults;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.FieldValues;
 import edu.cornell.library.integration.utilities.SolrFields;
@@ -66,8 +69,8 @@ public class Subject implements SolrFieldGenerator {
 		final Collection<String> subjectDisplay = new LinkedHashSet<>();
 		final Collection<String> subjectJson = new LinkedHashSet<>();
 		final Collection<String> keywordDisplay = new LinkedHashSet<>();
-		final Collection<String> authorityAltForms = new HashSet<>();
-		final Collection<String> authorityAltFormsCJK = new HashSet<>();
+		final Set<String> authorityAltForms = new TreeSet<>();
+		final Set<String> authorityAltFormsCJK = new TreeSet<>();
 
 		Collection<DataFieldSet> sets = rec.matchAndSortDataFields();
 
@@ -124,7 +127,8 @@ public class Subject implements SolrFieldGenerator {
 		for( final Heading h : taggedFields) {
 			final Set<String> values880_breadcrumbed = new LinkedHashSet<>();
 			final Set<String> valuesMain_breadcrumbed = new LinkedHashSet<>();
-			final List<BrowseValue> values_browse = new ArrayList<>();
+			final List<BrowseValue> valuesPrivateBrowse = new ArrayList<>();
+			final List<BrowseValue> valuesPublicBrowse = new ArrayList<>();
 			final Map<HeadingType,String> values_auth_browse = new HashMap<>();
 			final Set<String> valuesMain_json = new LinkedHashSet<>();
 			final Set<String> values880_json = new LinkedHashSet<>();
@@ -225,7 +229,6 @@ public class Subject implements SolrFieldGenerator {
 					break;
 				}
 				String primarySubjectTerm = null;
-				String origPrimaryTerm = null;
 				if (vals != null) {
 					final StringBuilder sb = new StringBuilder();
 					sb.append(vals.author);
@@ -236,63 +239,86 @@ public class Subject implements SolrFieldGenerator {
 					primarySubjectTerm = f.concatenateSpecificSubfields(main_fields);
 				}
 				if (primarySubjectTerm != null) {
-					AuthorityData authData = new AuthorityData(config,primarySubjectTerm,ht);
-					if ( authData.replacementForm != null ) {
-						sfs.add("subject_overlay_facet", authData.replacementForm);
-						if ( authData.alternateForms == null ) authData.alternateForms = new ArrayList<>();
-						authData.alternateForms.add(primarySubjectTerm);
-						origPrimaryTerm = primarySubjectTerm;
-						primarySubjectTerm = authData.replacementForm;
+					final List<String> dashed_terms = f.valueListForSpecificSubfields(dashed_fields);
+					List<String> allTerms = new ArrayList<>();
+					allTerms.add(primarySubjectTerm);
+					allTerms.addAll(dashed_terms);
+					ReplaceResults replaceData = ReplacementHeadings.checkForHeadingReplacements(allTerms);
+					AuthorityData authData = new AuthorityData(config, primarySubjectTerm, ht);
+					AuthorityData replaceAuthData = null;
+					if (replaceData != null) {
+						authData.alternateForms.add(String.join(" > ", allTerms));
+						String replacePrimaryTerm = replaceData.afterHeading().get(0);
+						if (! replacePrimaryTerm.equals(primarySubjectTerm)) {
+							replaceAuthData = new AuthorityData(config, replacePrimaryTerm, ht);
+							authData.alternateForms.addAll(replaceAuthData.alternateForms);
+						}
+						for (ReplaceHead replace : replaceData.appliedReplacements()) {
+							sfs.add("subject_overlay_facet", String.join(" > ", replace.beforeForm()));
+							sfs.add("subject_overlay_facet", String.join(" > ", replace.afterForm()));
+						}
 					}
-					final Breadcrumbs breadcrumbed = new Breadcrumbs( primarySubjectTerm, origPrimaryTerm );
-					final List<Object> json = new ArrayList<>();
-					final Map<String,Object> subj1 = new HashMap<>();
-					subj1.put("subject", primarySubjectTerm);
-					subj1.put("type", ht.toString());
-					subj1.put("authorized", authData.authorized);
+					FacetValsAndAuthData origData = buildHeirarchicalFacetValsAndRetrieveAuthData(
+							config, primarySubjectTerm, dashed_terms, ht);
+					FacetValsAndAuthData publicData;
+					String json ;
+					for (AuthorityData auth : origData.authData)
+						authData.alternateForms.addAll(auth.alternateForms);
+					if (replaceData != null) {
+
+						// look for a secondary set of authority alternate forms for the replacement heading values
+						publicData = buildHeirarchicalFacetValsAndRetrieveAuthData(
+								config,
+								replaceData.afterHeading().get(0),
+								replaceData.afterHeading().subList(1,replaceData.afterHeading().size()),
+								ht);
+						for (AuthorityData auth : publicData.authData)
+							authData.alternateForms.addAll(auth.alternateForms);
+
+						// build public subject json from replacement values if relevant
+						json = buildJsonString(
+								replaceData.afterHeading().get(0),
+								replaceData.afterHeading().subList(1,replaceData.afterHeading().size()),
+								replaceAuthData.authorized,
+								publicData,
+								ht);
+					} else {
+						// build public subject json from MARC subject fields if no replacement
+						json = buildJsonString(primarySubjectTerm, dashed_terms, authData.authorized, origData, ht);
+						publicData = origData;
+					}
+
+
+
+					// Route all of the CJK alternate forms for a CJK search field
 					if (authData.alternateForms != null)
 						for (final String altForm : authData.alternateForms) {
 							authorityAltForms.add(altForm);
 							if (isCJK(altForm))
 								authorityAltFormsCJK.add(altForm);
 						}
-					json.add(subj1);
 
-					values_browse.add(new BrowseValue(breadcrumbed,"\\s?\\(Core\\)$",is880));
+					for (String heading : origData.facetValues)
+						valuesPrivateBrowse.add(new BrowseValue(heading, is880));
+					for (String heading : publicData.facetValues)
+						valuesPublicBrowse.add(new BrowseValue(heading, is880));
+
+					String breadcrumbed = publicData.facetValues.get(publicData.facetValues().size()-1);
+					if (is880)
+						values880_breadcrumbed.add(breadcrumbed);
+					else
+						valuesMain_breadcrumbed.add(breadcrumbed);
+
 					if (vals != null && vals.category.equals(HeadingCategory.AUTHORTITLE) && ! is880) {
 						HeadingType nameType = (f.mainTag.equals("600")) ? HeadingType.PERSNAME
 								: (f.mainTag.equals("610")) ? HeadingType.CORPNAME : HeadingType.EVENT;
 						values_auth_browse.put(nameType, removeTrailingPunctuation(vals.author,"."));
 					}
-					final List<String> dashed_terms = f.valueListForSpecificSubfields(dashed_fields);
-					//					String dashed_terms = f.concatenateSpecificSubfields("|",dashed_fields);
 					if (h.is653) {
 						sfs.add("sixfivethree",primarySubjectTerm);
 					}
-					for (final String dashed_term : dashed_terms) {
-						final Map<String,Object> subj = new HashMap<>();
-						breadcrumbed.append(" > "+dashed_term);
-						subj.put("subject", dashed_term);
-						values_browse.add(new BrowseValue(breadcrumbed,is880));
-						authData = new AuthorityData(config,breadcrumbed.toString(),ht);
-						subj.put("authorized", authData.authorized);
-						if (authData.authorized && authData.alternateForms != null)
-							for (final String altForm : authData.alternateForms) {
-								authorityAltForms.add(altForm);
-								if (isCJK(altForm))
-									authorityAltFormsCJK.add(altForm);
-							}
-						json.add(subj);
-					}
-					final ByteArrayOutputStream jsonstream = new ByteArrayOutputStream();
-					mapper.writeValue(jsonstream, json);
-					if (is880) {
-						values880_breadcrumbed.add(removeTrailingPunctuation(breadcrumbed.toString(),"."));
-						values880_json.add(jsonstream.toString("UTF-8"));
-					} else {
-						valuesMain_breadcrumbed.add(removeTrailingPunctuation(breadcrumbed.toString(),"."));
-						valuesMain_json.add(jsonstream.toString("UTF-8"));
-					}
+					if (is880)  values880_json.add(json);
+					else valuesMain_json.add(json);
 
 					// tabulate subdivision sequences
 					if ( ! is880 )
@@ -303,14 +329,14 @@ public class Subject implements SolrFieldGenerator {
 								s += " > "+dashed_terms.get(j);
 								values_dashed.add(s);
 							}
-					}
+						}
 				}
 			}
 
 
 			for (final String s: values880_breadcrumbed) {
 				final String disp = removeTrailingPunctuation(s,".");
-				sfs.add("subject_t",s);
+				sfs.add("subject_t",disp);
 				if (h.vocab.equals(HeadingVocab.FAST))
 					sfs.add("fast_"+facet_type+"_facet",disp);
 				if ( ! h.vocab.equals(HeadingVocab.FAST) || ! recordHasLCSH)
@@ -319,9 +345,9 @@ public class Subject implements SolrFieldGenerator {
 			}
 			for (final String s: valuesMain_breadcrumbed) {
 				String disp = removeTrailingPunctuation(s,".");
+				sfs.add("subject_t",disp);
 				if (facet_type.equals("era"))
 					disp = normalizeDateRangeSpacing( disp );
-				sfs.add("subject_t",s);
 				if (h.vocab.equals(HeadingVocab.FAST)
 						|| (h.vocab.equals(HeadingVocab.LCGFT) && facet_type.equals("genre")))
 					sfs.add("fast_"+facet_type+"_facet",disp);
@@ -329,8 +355,9 @@ public class Subject implements SolrFieldGenerator {
 					&& ! h.vocab.equals(HeadingVocab.OTHER))
 					if (h.is653) keywordDisplay.add(disp.replaceAll("\\s?\\(Core\\)$", ""));
 					else         subjectDisplay.add(disp);
+
 			}
-			for (final BrowseValue value: values_browse)
+			for (final BrowseValue value: valuesPublicBrowse) {
 				if (ht != null) {
 					if (( ! ht.abbrev().equals("topic") || ! unwantedFacetValues.contains(value.display) )
 							&& ! h.vocab.equals(HeadingVocab.OTHER) )
@@ -338,10 +365,14 @@ public class Subject implements SolrFieldGenerator {
 					String filing = getFilingForm(value.display);
 					if (! h.vocab.equals(HeadingVocab.OTHER))
 						sfs.add("subject_"+ht.abbrev()+"_filing",filing);
-					String canonFiling = getFilingForm(value.canon);
-					if ( ! value.is880 && ! isCJK(value.canon)) {
+				}
+			}
+			for (final BrowseValue value: valuesPrivateBrowse)
+				if (ht != null) {
+					String canonFiling = getFilingForm(value.display);
+					if ( ! value.is880 && ! isCJK(value.display)) {
 						String vocab = h.vocab.name().toLowerCase();
-						sfs.add("subject_"+ht.abbrev()+"_"+vocab+"_facet", value.canon);
+						sfs.add("subject_"+ht.abbrev()+"_"+vocab+"_facet", value.display);
 						sfs.add("subject_"+ht.abbrev()+"_"+vocab+"_filing",canonFiling);
 					}
 				}
@@ -385,6 +416,41 @@ public class Subject implements SolrFieldGenerator {
 		return sfs;
 	}
 
+	private String buildJsonString(String primaryTerm, List<String> dashed_terms, boolean primaryTermAuthorized,
+			FacetValsAndAuthData facetAndAuthData, HeadingType ht) throws JsonProcessingException {
+		final List<Object> json = new ArrayList<>();
+		final Map<String,Object> subj1 = new HashMap<>();
+		subj1.put("subject", primaryTerm);
+		subj1.put("type", ht.toString());
+		subj1.put("authorized", primaryTermAuthorized);
+		json.add(subj1);
+		for (int i = 0 ; i < dashed_terms.size() ; i++) {
+			final Map<String,Object> subdiv = new HashMap<>();
+			subdiv.put("subject", dashed_terms.get(i));
+			subdiv.put("authorized", facetAndAuthData.authData.get(i).authorized);
+			json.add(subdiv);
+		}
+		return mapper.writeValueAsString(json);
+	}
+
+	private FacetValsAndAuthData buildHeirarchicalFacetValsAndRetrieveAuthData(
+			Config config, String primarySubjectTerm, List<String> dashed_terms, HeadingType ht) throws SQLException {
+		List<String> facetValues = new ArrayList<>();
+		List<AuthorityData> authData = new ArrayList<>();
+		String builder = removeTrailingPunctuation(primarySubjectTerm,".").replaceAll("\\s?\\(Core\\)$", "");
+		facetValues.add(builder);
+		for (String subdivision : dashed_terms) {
+			builder += " > " + subdivision;
+			builder = removeTrailingPunctuation(builder,".");
+			facetValues.add(builder);
+			authData.add(new AuthorityData(config, builder, ht));
+		}
+		return new FacetValsAndAuthData(facetValues, authData);
+	}
+	private record FacetValsAndAuthData (
+			List<String> facetValues,
+			List<AuthorityData> authData) {}
+	
 	private static String normalizeDateRangeSpacing(String disp) {
 		Matcher m = dateRangePattern.matcher(disp);
 		if (m.matches())
@@ -393,49 +459,15 @@ public class Subject implements SolrFieldGenerator {
 	}
 	private static Pattern dateRangePattern = Pattern.compile("(\\d+)-(\\d+)");
 
-	private static class Breadcrumbs {
-		final StringBuilder display;
-		final StringBuilder canon;
-		final boolean canonDiffers;
-
-		@Override public String toString() { return this.display.toString(); }
-
-		public void append (String s) {
-			this.display.append(s);
-			if ( this.canonDiffers ) this.canon.append(s);
-		}
-		public Breadcrumbs(String display, String canon) {
-			this.display = new StringBuilder(display);
-			if ( canon == null ) {
-				this.canon = this.display;
-				this.canonDiffers = false;
-			} else {
-				this.canon = new StringBuilder( canon );
-				this.canonDiffers = true;
-			}
+	private static record BrowseValue(
+		String display,
+		boolean is880 ){
+		BrowseValue( String display, boolean is880 ) {
+			this.display = removeTrailingPunctuation(display,".");
+			this.is880 = is880;
 		}
 	}
-	private static class BrowseValue {
-		final String display;
-		final String canon;
-		final boolean is880;
-		public BrowseValue( Breadcrumbs bc, String remove, boolean is880 ) {
-			this.display = removeTrailingPunctuation(bc.toString(),".").replaceAll(remove, "");
-			this.is880 = is880;
-			if ( bc.canonDiffers )
-				this.canon = removeTrailingPunctuation(bc.canon.toString(),".").replaceAll(remove, "");
-			else
-				this.canon = this.display;
-		}
-		public BrowseValue( Breadcrumbs bc, boolean is880 ) {
-			this.display = removeTrailingPunctuation(bc.toString(),".");
-			this.is880 = is880;
-			if ( bc.canonDiffers )
-				this.canon = removeTrailingPunctuation(bc.canon.toString(),".");
-			else
-				this.canon = this.display;
-		}
-	}
+
 	private static class Heading {
 		public Heading() { }
 		HeadingVocab vocab = HeadingVocab.UNK;

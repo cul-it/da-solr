@@ -8,32 +8,24 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import edu.cornell.library.integration.utilities.Config;
 
 public class AuthorityData {
 
 	public Boolean authorized = false;
-	public List<String> alternateForms = null;
+	public Set<String> alternateForms = new TreeSet<>();
 	public int headingId = 0;
 	public List<String> authorityId = new ArrayList<>();
-	public String replacementForm = null;
+
 
 	public AuthorityData( Config config, String heading, HeadingType ht) throws SQLException {
 
 		try ( Connection conn = config.getDatabaseConnection("Headings") ){
 
 			String filingForm = getFilingForm(heading);
-
-			try ( PreparedStatement isReplacedStmt = conn.prepareStatement(
-					"SELECT preferred_display FROM replacement_headings WHERE orig_sort = ?")) {
-				int i = filingForm.indexOf(" 0000 ");
-				String filingPrefix = (i == -1) ? filingForm : filingForm.substring(0,i);
-				isReplacedStmt.setString(1, filingPrefix);
-				try ( ResultSet rs = isReplacedStmt.executeQuery()) {
-					while ( rs.next() ) this.replacementForm = rs.getString(1);
-				}
-			}
 
 			try ( PreparedStatement isAuthorizedStmt = conn.prepareStatement(
 						"SELECT main_entry, heading.id, authority.nativeId"+
@@ -67,11 +59,8 @@ public class AuthorityData {
 					+" ORDER BY sort") ){
 				alternateFormsStmt.setInt(1, this.headingId);
 				try ( ResultSet rs = alternateFormsStmt.executeQuery() ){
-					while (rs.next()) {
-						if (this.alternateForms == null)
-							this.alternateForms = new ArrayList<>();
+					while (rs.next())
 						this.alternateForms.add(rs.getString(1).replaceAll(" \\(.*\\)", ""));
-					}
 				}
 			}
 		}
@@ -85,7 +74,6 @@ public class AuthorityData {
 		if (authorized.equals(true))
 			throw new IllegalArgumentException( "Please use default constructor if a heading may be authorized");
 	}
-
 
 
 	public static enum RecordSet {
