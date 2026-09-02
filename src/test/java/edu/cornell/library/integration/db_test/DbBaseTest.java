@@ -1,11 +1,20 @@
 package edu.cornell.library.integration.db_test;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.junit.platform.commons.util.StringUtils;
 
 import edu.cornell.library.integration.utilities.Config;
 
@@ -55,6 +64,33 @@ public class DbBaseTest {
 			config = Config.loadConfig(requiredArgs, TEST_PROPERTIES_PATH);
 		} else {
 			config = Config.loadConfig(requiredArgs);
+		}
+	}
+
+	public static void runStmt(List<String> sqls, Connection conn) throws SQLException, UnsupportedEncodingException, FileNotFoundException, IOException {
+		for (String sql : sqls) {
+			try (Statement stmt = conn.createStatement();
+				BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sql),"UTF-8"))) {
+				String line;
+				while ((line = br.readLine()) != null) {
+					if (StringUtils.isBlank(line) || line.startsWith("--")) continue;
+					stmt.executeUpdate(line);
+				}
+			}
+		}
+	}
+
+	public static void executeStmt(List<String> sqls, Connection conn) throws SQLException, UnsupportedEncodingException, FileNotFoundException, IOException {
+		for (String sql : sqls) {
+			try (Statement stmt = conn.createStatement()) {
+				if (StringUtils.isBlank(sql) || sql.startsWith("--")) continue;
+				// madsAuthorityUpdate table has source column that is of type JSON in mysql (mariadb) and text in sqlite.
+				// When inserting with prepared statemements with parameters, everything works fine.
+				// When we insert using plain sql statements in tests, we need to handle the differences in how MySQL and SQLite treat JSON and text columns.
+				if (useSqlite != null)
+					sql = sql.replace("\\\\", "\\");
+				stmt.executeUpdate(sql);
+			}
 		}
 	}
 

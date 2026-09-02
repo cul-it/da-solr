@@ -19,43 +19,43 @@ import java.util.List;
 import java.util.Properties;
 
 import org.junit.platform.commons.util.StringUtils;
-import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.mariadb.MariaDBContainer;
 
+@SuppressWarnings("resource")
+// Testcontainers uses Ryuk to forcefully clean up any leaked containers and networks when the JVM process exits.
 public class AbstractContainerBaseTest {
 	protected static final String DBNAME = "test";
 	protected static final String DBUID = "test_user";
 	protected static final String DBPWD = "test_pwd";
 	protected static Properties PROPS = null;
-	protected final static MySQLContainer<?> mysqlContainer;
+	protected final static MariaDBContainer mariaDBContainer;
 	protected static File testPropertiesFile = null;
 	protected static boolean initialized = false;
 
+	// match the version of MariaDB on production for more accurate tests
 	static {
-		mysqlContainer = new MySQLContainer<>("mysql:9.2.0")
+		mariaDBContainer = new MariaDBContainer("mariadb:10.3.39")
 				.withDatabaseName(DBNAME)
 				.withUsername(DBUID)
 				.withPassword(DBPWD)
 				.withDatabaseName(DBNAME);
-		mysqlContainer.start();
+		mariaDBContainer.start();
 	}
 
 	public static void init(List<String> sqls) throws SQLException, UnsupportedEncodingException, FileNotFoundException, IOException {
 		if (!initialized) {
-			String jdbc_str = mysqlContainer.getJdbcUrl() + "?user=" + DBUID + "&password=" + DBPWD;
-			Connection conn = DriverManager.getConnection(jdbc_str);
-			for (String sql : sqls) {
-				try (Statement stmt = conn.createStatement();
-					BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sql),"UTF-8"))) {
+			String jdbc_str = mariaDBContainer.getJdbcUrl() + "?user=" + DBUID + "&password=" + DBPWD;
+			try (Connection conn = DriverManager.getConnection(jdbc_str);
+					Statement stmt = conn.createStatement()) {
+				for (String sql : sqls) {
+					BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sql),"UTF-8"));
 					String line;
 					while ((line = br.readLine()) != null) {
-						if (StringUtils.isBlank(line) || line.startsWith("--")) {
-							continue;
-						}
+						if (StringUtils.isBlank(line) || line.startsWith("--")) continue;
 						stmt.executeUpdate(line);
 					}
 				}
 			}
-			conn.close();
 			initialized = true;
 		}
 	}
@@ -67,7 +67,7 @@ public class AbstractContainerBaseTest {
 
 		PROPS = new Properties();
 		for (String id : Arrays.asList("Authority", "CallNos", "Current", "Hathi", "Headings")) {
-			PROPS.setProperty("databaseURL" + id, mysqlContainer.getJdbcUrl());
+			PROPS.setProperty("databaseURL" + id, mariaDBContainer.getJdbcUrl());
 			PROPS.setProperty("databaseUser" + id, DBUID);
 			PROPS.setProperty("databasePass" + id, DBPWD);
 			PROPS.setProperty("databasePooling" + id, "false");

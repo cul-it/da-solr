@@ -1,0 +1,58 @@
+{
+	"@context": [
+		"https://www.w3.org/ns/activitystreams#",
+		"https://emm-spec.org/0.1/context.json",
+		{
+			"madsrdf": "http://www.loc.gov/mads/rdf/v1#",
+			"skos": "http://www.w3.org/2004/02/skos/core#",
+			"bf": "http://id.loc.gov/ontologies/bibframe/"
+		}
+	],
+	"summary": "Page 1 of 5203 pages in http://id.loc.gov/authorities/subjects/activitystreams/feed",
+	"type": "OrderedCollectionPage",
+	"id": "http://id.loc.gov/authorities/subjects/activitystreams/feed/1",
+	"partOf": "http://id.loc.gov/authorities/subjects/activitystreams/feed",
+	"orderedItems": [
+		{
+			"type": "Update",
+			"published": "2026-04-29",
+			"actor": "http://id.loc.gov/vocabulary/organizations/dlc",
+			"object": {
+				"id": "http://id.loc.gov/authorities/subjects/sh97007140",
+				"updated": "2026-04-24",
+				"type": [
+					"madsrdf:Topic",
+					"madsrdf:SimpleType",
+					"madsrdf:Authority"
+				],
+				"url": [
+					{
+						"type": "Link",
+						"href": "http://id.loc.gov/authorities/subjects/sh97007140.rdf",
+						"mediaType": "application/rdf+xml"
+					},
+					{
+						"type": "Link",
+						"href": "http://id.loc.gov/authorities/subjects/sh97007140.json",
+						"mediaType": "application/json"
+					},
+					{
+						"type": "Link",
+						"href": "http://id.loc.gov/authorities/subjects/sh97007140.nt",
+						"mediaType": "text/plain"
+					},
+					{
+						"type": "Link",
+						"href": "http://id.loc.gov/authorities/subjects/sh97007140.marcxml.xml",
+						"mediaType": "application/marc+xml"
+					},
+					{
+						"type": "Link",
+						"href": "http://id.loc.gov/authorities/subjects/sh97007140.madsxml.xml",
+						"mediaType": "application/mads+xml"
+					}
+				]
+			}
+		}
+	]
+}

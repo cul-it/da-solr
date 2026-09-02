@@ -1,0 +1,278 @@
+{
+	"@context": "http://id.loc.gov/authorities/names/context.json",
+	"@graph": [
+		{
+			"@id": "http://id.loc.gov/authorities/names/n00000001",
+			"@type": [
+				"madsrdf:Authority",
+				"madsrdf:PersonalName"
+			],
+			"bflc:marcKey": "1001 $aMcQuerry, Maureen,$d1955-",
+			"identifiers:lccn": "n 00000001",
+			"madsrdf:adminMetadata": [
+				{
+					"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b1"
+				},
+				{
+					"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b2"
+				}
+			],
+			"madsrdf:authoritativeLabel": "McQuerry, Maureen, 1955-",
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b3"
+					},
+					{
+						"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b4"
+					}
+				]
+			},
+			"madsrdf:hasExactExternalAuthority": {
+				"@id": "http://viaf.org/en/viaf/LC%7Cn%20%2000000001"
+			},
+			"madsrdf:hasSource": [
+				{
+					"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b7"
+				},
+				{
+					"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b8"
+				},
+				{
+					"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b9"
+				}
+			],
+			"madsrdf:hasVariant": [
+				{
+					"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b10"
+				},
+				{
+					"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b15"
+				},
+				{
+					"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b20"
+				}
+			],
+			"madsrdf:identifiesRWO": {
+				"@id": "http://id.loc.gov/rwo/agents/n00000001"
+			},
+			"madsrdf:isMemberOfMADSCollection": [
+				{
+					"@id": "http://id.loc.gov/authorities/names/collection_LCNAF"
+				},
+				{
+					"@id": "http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings"
+				}
+			],
+			"madsrdf:isMemberOfMADSScheme": {
+				"@id": "http://id.loc.gov/authorities/names"
+			}
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b1",
+			"@type": "ri:RecordInfo",
+			"ri:languageOfCataloging": {
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			},
+			"ri:recordChangeDate": {
+				"@type": "xsd:dateTime",
+				"@value": "2000-01-04T00:00:00"
+			},
+			"ri:recordContentSource": {
+				"@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+			},
+			"ri:recordStatus": "new"
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b2",
+			"@type": "ri:RecordInfo",
+			"ri:languageOfCataloging": {
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			},
+			"ri:recordChangeDate": {
+				"@type": "xsd:dateTime",
+				"@value": "2025-08-05T02:34:09"
+			},
+			"ri:recordContentSource": {
+				"@id": "http://id.loc.gov/vocabulary/organizations/iarlh"
+			},
+			"ri:recordStatus": "revised"
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b3",
+			"@type": "madsrdf:FullNameElement",
+			"madsrdf:elementValue": "McQuerry, Maureen,"
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b4",
+			"@type": "madsrdf:DateNameElement",
+			"madsrdf:elementValue": "1955-"
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b7",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationNote": "title page (Maureen Doyle McQuerry) flap page 4 of dust jacket (\"Maureen Doyle McQuerry is a teacher specializing in young adult literature and writing\")",
+			"madsrdf:citationSource": "McQuerry, Maureen. Beyond the door, 2014:",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b8",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationNote": "CIP t.p. (Maureen McQuerry; Morin Makkvyri) data sheet (b. 12-22-55)",
+			"madsrdf:citationSource": "McQuerry, Maureen. Nuclear legacy, 2000:",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b9",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationNote": "Bio (About me; Maureen's published works include The Peculiars, Nuclear Legacy, and numerous poems in literary journals. Her next books, Beyond the Door and The Telling Stone (Abrams/Amulet), are due out in spring and fall 2014 [includes photograph])",
+			"madsrdf:citationSource": "Web site for maureenmcquerry.com, April 22, 2014:",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b10",
+			"@type": [
+				"madsrdf:PersonalName",
+				"madsrdf:Variant"
+			],
+			"bflc:marcKey": {
+				"@language": "zxx-Latn",
+				"@value": "4001 $aMacQuerry, Maureen,$d1955-"
+			},
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b11"
+					},
+					{
+						"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b12"
+					}
+				]
+			},
+			"madsrdf:variantLabel": {
+				"@language": "zxx-Latn",
+				"@value": "MacQuerry, Maureen, 1955-"
+			}
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b11",
+			"@type": "madsrdf:FullNameElement",
+			"madsrdf:elementValue": "MacQuerry, Maureen,"
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b12",
+			"@type": "madsrdf:DateNameElement",
+			"madsrdf:elementValue": "1955-"
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b15",
+			"@type": [
+				"madsrdf:PersonalName",
+				"madsrdf:Variant"
+			],
+			"bflc:marcKey": {
+				"@language": "zxx-Latn",
+				"@value": "4001 $aMakkvyri, Morin,$d1955-"
+			},
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b16"
+					},
+					{
+						"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b17"
+					}
+				]
+			},
+			"madsrdf:variantLabel": {
+				"@language": "zxx-Latn",
+				"@value": "Makkvyri, Morin, 1955-"
+			}
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b16",
+			"@type": "madsrdf:FullNameElement",
+			"madsrdf:elementValue": "Makkvyri, Morin,"
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b17",
+			"@type": "madsrdf:DateNameElement",
+			"madsrdf:elementValue": "1955-"
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b20",
+			"@type": [
+				"madsrdf:PersonalName",
+				"madsrdf:Variant"
+			],
+			"bflc:marcKey": {
+				"@language": "zxx-Latn",
+				"@value": "4001 $aMcQuerry, Maureen Doyle,$d1955-"
+			},
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b21"
+					},
+					{
+						"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b22"
+					}
+				]
+			},
+			"madsrdf:variantLabel": {
+				"@language": "zxx-Latn",
+				"@value": "McQuerry, Maureen Doyle, 1955-"
+			}
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b21",
+			"@type": "madsrdf:FullNameElement",
+			"madsrdf:elementValue": "McQuerry, Maureen Doyle,"
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b22",
+			"@type": "madsrdf:DateNameElement",
+			"madsrdf:elementValue": "1955-"
+		},
+		{
+			"@id": "http://id.loc.gov/rwo/agents/n00000001",
+			"@type": [
+				"bf:Person",
+				"madsrdf:RWO",
+				"http://xmlns.com/foaf/0.1/Person"
+			],
+			"madsrdf:associatedLanguage": {
+				"@id": "http://id.loc.gov/vocabulary/languages/eng"
+			},
+			"madsrdf:birthDate": {
+				"@type": "http://id.loc.gov/datatypes/edtf",
+				"@value": "1955"
+			},
+			"madsrdf:isIdentifiedByAuthority": {
+				"@id": "http://id.loc.gov/authorities/names/n00000001"
+			},
+			"madsrdf:occupation": [
+				{
+					"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b25"
+				},
+				{
+					"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b26"
+				}
+			],
+			"rdfs:label": "McQuerry, Maureen, 1955-"
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b25",
+			"madsrdf:occupation": {
+				"@id": "http://id.loc.gov/authorities/subjects/sh85009793"
+			}
+		},
+		{
+			"@id": "_:nd1b955895e7b40c092ef9a51fd6cad44b26",
+			"madsrdf:occupation": {
+				"@id": "http://id.loc.gov/authorities/subjects/sh85132964"
+			}
+		}
+	],
+	"@id": "/authorities/names/n00000001"
+}

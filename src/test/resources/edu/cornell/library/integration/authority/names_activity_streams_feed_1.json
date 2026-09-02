@@ -1,0 +1,102 @@
+{
+	"@context": [
+		"https://www.w3.org/ns/activitystreams#",
+		"https://emm-spec.org/0.1/context.json",
+		{
+			"madsrdf": "http://www.loc.gov/mads/rdf/v1#",
+			"skos": "http://www.w3.org/2004/02/skos/core#",
+			"bf": "http://id.loc.gov/ontologies/bibframe/"
+		}
+	],
+	"summary": "Page 1 of 123058 pages in http://id.loc.gov/authorities/names/activitystreams/feed",
+	"type": "OrderedCollectionPage",
+	"id": "http://id.loc.gov/authorities/names/activitystreams/feed/1",
+	"next": "http://id.loc.gov/authorities/names/activitystreams/feed/2",
+	"partOf": "http://id.loc.gov/authorities/names/activitystreams/feed",
+	"orderedItems": [
+		{
+			"type": "Update",
+			"published": "2026-04-09",
+			"actor": "http://id.loc.gov/vocabulary/organizations/ien",
+			"object": {
+				"id": "http://id.loc.gov/authorities/names/no2026038416",
+				"updated": "2026-04-09",
+				"type": [
+					"madsrdf:PersonalName",
+					"madsrdf:SimpleType",
+					"madsrdf:Name",
+					"madsrdf:Authority"
+				],
+				"url": [
+					{
+						"type": "Link",
+						"href": "http://id.loc.gov/authorities/names/no2026038416.rdf",
+						"mediaType": "application/rdf+xml"
+					},
+					{
+						"type": "Link",
+						"href": "http://id.loc.gov/authorities/names/no2026038416.json",
+						"mediaType": "application/json"
+					},
+					{
+						"type": "Link",
+						"href": "http://id.loc.gov/authorities/names/no2026038416.nt",
+						"mediaType": "text/plain"
+					},
+					{
+						"type": "Link",
+						"href": "http://id.loc.gov/authorities/names/no2026038416.marcxml.xml",
+						"mediaType": "application/marc+xml"
+					},
+					{
+						"type": "Link",
+						"href": "http://id.loc.gov/authorities/names/no2026038416.madsxml.xml",
+						"mediaType": "application/mads+xml"
+					}
+				]
+			}
+		},
+		{
+			"type": "Update",
+			"published": "2026-04-09",
+			"actor": "http://id.loc.gov/vocabulary/organizations/iahccs",
+			"object": {
+				"id": "http://id.loc.gov/authorities/names/no2026038420",
+				"updated": "2026-04-09",
+				"type": [
+					"madsrdf:PersonalName",
+					"madsrdf:SimpleType",
+					"madsrdf:Name",
+					"madsrdf:Authority"
+				],
+				"url": [
+					{
+						"type": "Link",
+						"href": "http://id.loc.gov/authorities/names/no2026038420.rdf",
+						"mediaType": "application/rdf+xml"
+					},
+					{
+						"type": "Link",
+						"href": "http://id.loc.gov/authorities/names/no2026038420.json",
+						"mediaType": "application/json"
+					},
+					{
+						"type": "Link",
+						"href": "http://id.loc.gov/authorities/names/no2026038420.nt",
+						"mediaType": "text/plain"
+					},
+					{
+						"type": "Link",
+						"href": "http://id.loc.gov/authorities/names/no2026038420.marcxml.xml",
+						"mediaType": "application/marc+xml"
+					},
+					{
+						"type": "Link",
+						"href": "http://id.loc.gov/authorities/names/no2026038420.madsxml.xml",
+						"mediaType": "application/mads+xml"
+					}
+				]
+			}
+		}
+	]
+}
