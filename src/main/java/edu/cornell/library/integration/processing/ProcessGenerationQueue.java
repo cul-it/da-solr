@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.cornell.library.integration.catalog.Catalog;
 import edu.cornell.library.integration.folio.FolioClient;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.metadata.support.ReplacementHeadings;
 import edu.cornell.library.integration.metadata.support.StatisticalCodes;
 import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 import edu.cornell.library.integration.processing.GenerateSolrFields.BibChangeSummary;
@@ -62,6 +63,10 @@ public class ProcessGenerationQueue {
 				"processedMarc" );
 
 		Catalog.DownloadMARC marc = Catalog.getMarcDownloader(config);
+
+		try (Connection headings = config.getDatabaseConnection("Headings")) {
+			ReplacementHeadings.initialize(headings);
+		}
 
 		try (	Connection current = config.getDatabaseConnection("Current");
 				PreparedStatement nextBibStmt = current.prepareStatement
