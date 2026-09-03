@@ -86,7 +86,6 @@ public class ReplacementHeadings {
 
 	private static OverlayMatch lookForOverlay(List<ReplaceHead> overlays, List<String> subdivs, boolean isSubdiv) {
 		OVERLAY: for (ReplaceHead overlay : overlays) {
-			System.out.println(String.join("--",overlay.beforeForm));
 			if (isSubdiv != overlay.isSubdiv) continue;
 			if (overlay.beforeForm.length == 1) {
 				return new OverlayMatch(overlay.afterForm.split(" > ") ,overlay);

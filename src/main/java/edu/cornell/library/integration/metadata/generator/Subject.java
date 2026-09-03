@@ -276,10 +276,11 @@ public class Subject implements SolrFieldGenerator {
 							authData.alternateForms.addAll(auth.alternateForms);
 
 						// build public subject json from replacement values if relevant
+						boolean authorized = (replaceAuthData != null)?replaceAuthData.authorized:authData.authorized;
 						json = buildJsonString(
 								replaceData.afterHeading().get(0),
 								replaceData.afterHeading().subList(1,replaceData.afterHeading().size()),
-								replaceAuthData.authorized,
+								authorized,
 								publicData,
 								ht);
 					} else {

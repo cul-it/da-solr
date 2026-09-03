@@ -486,8 +486,30 @@ public class SubjectTest extends DbBaseTest {
 	}
 
 	@Test
-	public void testOverlayUnwantedSubdivisions() {
-		
+	public void testOverlayUnwantedSubdivisions() throws SQLException, IOException {
+		MarcRecord rec = new MarcRecord(MarcRecord.RecordType.BIBLIOGRAPHIC);
+		rec.dataFields.add(new DataField(1,"650",' ','7',"‡a Roses ‡y 20th cEntURy"));
+		String expected =
+		"subject_overlay_facet: roses\n"+
+		"subject_overlay_facet: Daisies\n"+
+		"subject_overlay_facet: 20th century\n"+
+		"subject_overlay_facet: Subdivision map\n"+
+		"subject_t: Daisies > Subdivision map\n"+
+		"subject_topic_facet: Daisies\n"+
+		"subject_topic_filing: daisies\n"+
+		"subject_topic_facet: Daisies > Subdivision map\n"+
+		"subject_topic_filing: daisies 0000 subdivision map\n"+
+		"subject_topic_unk_facet: Roses\n"+
+		"subject_topic_unk_filing: roses\n"+
+		"subject_topic_unk_facet: Roses > 20th cEntURy\n"+
+		"subject_topic_unk_filing: roses 0000 20th century\n"+
+		"subject_sub_unk_facet: 20th cEntURy\n"+
+		"subject_sub_unk_filing: 20th century\n"+
+		"subject_json: [{\"subject\":\"Daisies\",\"authorized\":false,\"type\":\"Topical Term\"},{\"subject\":\"Subdivision map\",\"authorized\":false}]\n"+
+		"subject_display: Daisies > Subdivision map\n"+
+		"authority_subject_t: Roses > 20th cEntURy\n"+
+		"fast_b: false\n";
+		assertEquals(expected,this.gen.generateSolrFields(rec, config).toString());
 	}
 
 	@Test // Should not populate vocabulary-specific fields intended for authority control
