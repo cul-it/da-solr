@@ -46,6 +46,7 @@ public class ReplacementHeadings {
 				boolean isSubdiv = rs.getString(1).startsWith(">");
 				String before = getFilingForm(rs.getString(1));
 				String after = rs.getString(2);
+				if (isSubdiv) after = after.replaceAll("^> ", "");
 				String[] beforeParts = before.split(" 0000 ");
 				String top = beforeParts[0];
 				if ( ! _replacements.containsKey(top))

@@ -62,6 +62,11 @@ public class ReplacementHeadingsTest extends DbBaseTest {
 			replaceData = ReplacementHeadings.checkForHeadingReplacements(Arrays.asList(
 					"Main Heading","Subdivision"));
 			assertEquals("Grapes", String.join(" > ", replaceData.afterHeading()));
+
+			// subdivision overlay with a leading "> " in the db for the after form
+			replaceData = ReplacementHeadings.checkForHeadingReplacements(Arrays.asList(
+					"Would you eat them","In a box"));
+			assertEquals("Would you eat them > With a fox", String.join(" > ", replaceData.afterHeading()));
 		}
 	}
 

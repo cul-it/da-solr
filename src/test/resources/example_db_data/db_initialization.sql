@@ -13,6 +13,7 @@ INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("20th Ce
 INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("Lilies", "Roses");
 INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("Roses", "Daisies");
 INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("Main Heading > Subdivision", "Grapes");
+INSERT INTO replacement_headings (orig_sort, preferred_display) VALUES ("> In a box", "> With a fox");
 
 -- Heading2SolrTest data
 
