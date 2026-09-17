@@ -1,0 +1,152 @@
+{
+	"@context": "http://id.loc.gov/authorities/names/context.json",
+	"@graph": [
+		{
+			"@id": "http://id.loc.gov/authorities/names/n00000032",
+			"@type": [
+				"madsrdf:Authority",
+				"madsrdf:NameTitle"
+			],
+			"bflc:marcKey": "1001 $aStella, Frank.$tMoby Dick series",
+			"identifiers:lccn": "n 00000032",
+			"madsrdf:adminMetadata": [
+				{
+					"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b1"
+				},
+				{
+					"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b2"
+				}
+			],
+			"madsrdf:authoritativeLabel": "Stella, Frank. Moby Dick series",
+			"madsrdf:componentList": {
+				"@list": [
+					{
+						"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b3"
+					},
+					{
+						"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b6"
+					}
+				]
+			},
+			"madsrdf:hasExactExternalAuthority": {
+				"@id": "http://viaf.org/en/viaf/LC%7Cn%20%2000000032"
+			},
+			"madsrdf:hasSource": [
+				{
+					"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b11"
+				},
+				{
+					"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b12"
+				},
+				{
+					"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b13"
+				}
+			],
+			"madsrdf:isMemberOfMADSCollection": [
+				{
+					"@id": "http://id.loc.gov/authorities/names/collection_FRBRWork"
+				},
+				{
+					"@id": "http://id.loc.gov/authorities/names/collection_LCNAF"
+				},
+				{
+					"@id": "http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings"
+				}
+			],
+			"madsrdf:isMemberOfMADSScheme": {
+				"@id": "http://id.loc.gov/authorities/names"
+			}
+		},
+		{
+			"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b1",
+			"@type": "ri:RecordInfo",
+			"ri:languageOfCataloging": {
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			},
+			"ri:recordChangeDate": {
+				"@type": "xsd:dateTime",
+				"@value": "2025-08-05T02:34:48"
+			},
+			"ri:recordContentSource": {
+				"@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+			},
+			"ri:recordStatus": "revised"
+		},
+		{
+			"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b2",
+			"@type": "ri:RecordInfo",
+			"ri:languageOfCataloging": {
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			},
+			"ri:recordChangeDate": {
+				"@type": "xsd:dateTime",
+				"@value": "2000-01-18T00:00:00"
+			},
+			"ri:recordContentSource": {
+				"@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+			},
+			"ri:recordStatus": "new"
+		},
+		{
+			"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b3",
+			"@type": [
+				"madsrdf:Authority",
+				"madsrdf:PersonalName"
+			],
+			"madsrdf:authoritativeLabel": "Stella, Frank.",
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b4"
+					}
+				]
+			}
+		},
+		{
+			"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b4",
+			"@type": "madsrdf:FullNameElement",
+			"madsrdf:elementValue": "Stella, Frank."
+		},
+		{
+			"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b6",
+			"@type": [
+				"madsrdf:Authority",
+				"madsrdf:Title"
+			],
+			"madsrdf:authoritativeLabel": "Moby Dick series",
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b7"
+					}
+				]
+			}
+		},
+		{
+			"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b7",
+			"@type": "madsrdf:TitleElement",
+			"madsrdf:elementValue": "Moby Dick series"
+		},
+		{
+			"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b11",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationSource": "Grove dict. art",
+			"madsrdf:citationStatus": "notfound"
+		},
+		{
+			"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b12",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationNote": "(Frank Stella's Moby Dick series)",
+			"madsrdf:citationSource": "ArtAbstracts, Jan. 18, 2000",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:nc04394244b5b4fd4b1ababa51ca9d514b13",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationNote": "CIP galley (began in 1985 and completed in 1997; a series of artworks for each of Melville's 135 chapter titles, plus etymology, extracts, and epilogue)",
+			"madsrdf:citationSource": "Frank Stella's Moby Dick series, 2000:",
+			"madsrdf:citationStatus": "found"
+		}
+	],
+	"@id": "/authorities/names/n00000032"
+}

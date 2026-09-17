@@ -1,0 +1,45 @@
+<marcxml:record xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:marcxml="http://www.loc.gov/MARC21/slim" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:madsrdf="http://www.loc.gov/mads/rdf/v1#" xmlns:ri="http://id.loc.gov/ontologies/RecordInfo#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mets="http://www.loc.gov/METS/" xmlns:idx="info:lc/xq-modules/lcindex" xmlns:bfidx="info:lc/xq-modules/bfidx" xmlns:semtriples="http://marklogic.com/semantic" xmlns:bf="http://id.loc.gov/ontologies/bibframe/" xmlns:bflc="http://id.loc.gov/ontologies/bflc/" xmlns:bfsimple="http://id.loc.gov/ontologies/bfsimple/" xmlns:dcterms="http://purl.org/dc/terms/">
+<marcxml:leader>01390cz a2200193n 4500</marcxml:leader>
+<marcxml:controlfield tag="001">gf2010025067</marcxml:controlfield>
+<marcxml:controlfield tag="003">DLC</marcxml:controlfield>
+<marcxml:controlfield tag="005">20120329083140.9</marcxml:controlfield>
+<marcxml:controlfield tag="008">111019|| anznnbabn |a ana c</marcxml:controlfield>
+<marcxml:datafield tag="010" ind1=" " ind2=" ">
+<marcxml:subfield code="a">gf2010025067</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="040" ind1=" " ind2=" ">
+<marcxml:subfield code="a">WaU</marcxml:subfield>
+<marcxml:subfield code="b">eng</marcxml:subfield>
+<marcxml:subfield code="c">DLC</marcxml:subfield>
+<marcxml:subfield code="f">lcgft</marcxml:subfield>
+<marcxml:subfield code="d">DLC</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="155" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Gravity anomaly maps</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="455" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Gravity maps</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="555" ind1=" " ind2=" ">
+<marcxml:subfield code="w">g</marcxml:subfield>
+<marcxml:subfield code="a">Maps</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="670" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Work cat.: Thompson, G.A. Aeromagnetic and Bouguer gravity map of Twin Sisters dunite, northwestern Washington, 1973.</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="670" ind1=" " ind2=" ">
+<marcxml:subfield code="a">GRACE gravity map image gallery, via WWW, July 16, 2010.</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="670" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Introduction to potential fields: gravity, 1997:</marcxml:subfield>
+<marcxml:subfield code="b">p. 2 (a gravity map is made using numerous gravity measurements across the area of interest ... gravity measurements are often processed to a complete-Bouguer or isostatic gravity anomaly. These data are then gridded, so that the randomly spaced data are converted to a representation of the gravity field at equally spaced locations)</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="670" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Gravity anomaly maps, via Wisconsin State Cartographer's Office website, July 16, 2010</marcxml:subfield>
+<marcxml:subfield code="b">(Gravity anomaly maps depict the difference between theoretical computed gravity values and observed gravity values for a region of the earth's crust)</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="670" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Smith, W.H.F. Global seafloor topography from satellite altimetry, via NOAA National Geophysical Data Center website, July 16, 2010</marcxml:subfield>
+<marcxml:subfield code="b">(gravity maps are useful in revealing the geology of the sea floor)</marcxml:subfield>
+</marcxml:datafield>
+</marcxml:record>

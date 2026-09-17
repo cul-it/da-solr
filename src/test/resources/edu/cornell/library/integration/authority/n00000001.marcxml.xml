@@ -1,0 +1,57 @@
+<marcxml:record xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:marcxml="http://www.loc.gov/MARC21/slim">
+  <marcxml:leader>01137cz  a2200217n  4500</marcxml:leader>
+  <marcxml:controlfield tag="001">n00000001</marcxml:controlfield>
+  <marcxml:controlfield tag="003">DLC</marcxml:controlfield>
+  <marcxml:controlfield tag="005">20250805023409.2</marcxml:controlfield>
+  <marcxml:controlfield tag="008">000104n| azannaabn          |a aaa      </marcxml:controlfield>
+  <marcxml:datafield tag="010" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">n  00000001 </marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="040" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">DLC</marcxml:subfield>
+    <marcxml:subfield code="b">eng</marcxml:subfield>
+    <marcxml:subfield code="e">rda</marcxml:subfield>
+    <marcxml:subfield code="c">DLC</marcxml:subfield>
+    <marcxml:subfield code="d">DLC</marcxml:subfield>
+    <marcxml:subfield code="d">IArlh</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="046" ind1=" " ind2=" ">
+    <marcxml:subfield code="f">1955</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="100" ind1="1" ind2=" ">
+    <marcxml:subfield code="a">McQuerry, Maureen,</marcxml:subfield>
+    <marcxml:subfield code="d">1955-</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="374" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">Authors</marcxml:subfield>
+    <marcxml:subfield code="a">Teachers</marcxml:subfield>
+    <marcxml:subfield code="2">lcsh</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="377" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">eng</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="400" ind1="1" ind2=" ">
+    <marcxml:subfield code="a">Makkvyri, Morin,</marcxml:subfield>
+    <marcxml:subfield code="d">1955-</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="400" ind1="1" ind2=" ">
+    <marcxml:subfield code="a">MacQuerry, Maureen,</marcxml:subfield>
+    <marcxml:subfield code="d">1955-</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="400" ind1="1" ind2=" ">
+    <marcxml:subfield code="a">McQuerry, Maureen Doyle,</marcxml:subfield>
+    <marcxml:subfield code="d">1955-</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="670" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">McQuerry, Maureen. Nuclear legacy, 2000:</marcxml:subfield>
+    <marcxml:subfield code="b">CIP t.p. (Maureen McQuerry; Morin Makkvyri) data sheet (b. 12-22-55)</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="670" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">McQuerry, Maureen. Beyond the door, 2014:</marcxml:subfield>
+    <marcxml:subfield code="b">title page (Maureen Doyle McQuerry) flap page 4 of dust jacket ("Maureen Doyle McQuerry is a teacher specializing in young adult literature and writing")</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="670" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">Web site for maureenmcquerry.com, April 22, 2014:</marcxml:subfield>
+    <marcxml:subfield code="b">Bio (About me; Maureen's published works include The Peculiars, Nuclear Legacy, and numerous poems in literary journals. Her next books, Beyond the Door and The Telling Stone (Abrams/Amulet), are due out in spring and fall 2014 [includes photograph])</marcxml:subfield>
+  </marcxml:datafield>
+</marcxml:record>

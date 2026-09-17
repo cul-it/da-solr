@@ -1,0 +1,61 @@
+<marcxml:record xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:marcxml="http://www.loc.gov/MARC21/slim">
+  <marcxml:leader>01060cz  a2200217n  4500</marcxml:leader>
+  <marcxml:controlfield tag="001">n00000264</marcxml:controlfield>
+  <marcxml:controlfield tag="003">DLC</marcxml:controlfield>
+  <marcxml:controlfield tag="005">20250805023533.7</marcxml:controlfield>
+  <marcxml:controlfield tag="008">000203n| azannaabn          |a aaa      </marcxml:controlfield>
+  <marcxml:datafield tag="010" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">n  00000264 </marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="040" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">DLC</marcxml:subfield>
+    <marcxml:subfield code="b">eng</marcxml:subfield>
+    <marcxml:subfield code="e">rda</marcxml:subfield>
+    <marcxml:subfield code="c">DLC</marcxml:subfield>
+    <marcxml:subfield code="d">GVaS</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="100" ind1="1" ind2=" ">
+    <marcxml:subfield code="a">Lucchesi, Joe</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="370" ind1=" " ind2=" ">
+    <marcxml:subfield code="c">United States</marcxml:subfield>
+    <marcxml:subfield code="e">Northfield (Minn.)</marcxml:subfield>
+    <marcxml:subfield code="f">Washington (D.C.)</marcxml:subfield>
+    <marcxml:subfield code="2">naf</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="372" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">Education, Higher</marcxml:subfield>
+    <marcxml:subfield code="a">Art museum-Curatorship</marcxml:subfield>
+    <marcxml:subfield code="a">Art and history</marcxml:subfield>
+    <marcxml:subfield code="2">lcsh</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="373" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">Carleton College (Northfield, Minn.)</marcxml:subfield>
+    <marcxml:subfield code="2">naf</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="373" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">National Museum of Women in the Arts (U.S.)</marcxml:subfield>
+    <marcxml:subfield code="2">naf</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="374" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">College teachers</marcxml:subfield>
+    <marcxml:subfield code="a">Art museum curators</marcxml:subfield>
+    <marcxml:subfield code="2">lcsh</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="377" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">eng</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="510" ind1="2" ind2=" ">
+    <marcxml:subfield code="w">r</marcxml:subfield>
+    <marcxml:subfield code="i">Employer:</marcxml:subfield>
+    <marcxml:subfield code="a">Carleton College (Northfield, Minn.)</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="670" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">Chadwick, Whitney. Amazons in the drawing room, 2000:</marcxml:subfield>
+    <marcxml:subfield code="b">CIP t.p. (Joe Lucchesi)</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="670" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">Amazons in the drawing room, 2000:</marcxml:subfield>
+    <marcxml:subfield code="b">back cover (Joe Lucchesi is a visiting instructor of art history at Carleton College in Northfield, Minnesota, as well as curator of the exhibition of Brooks's art organized by the National Museum of Women in the Arts in Washington D.C.))</marcxml:subfield>
+  </marcxml:datafield>
+</marcxml:record>

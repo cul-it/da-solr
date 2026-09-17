@@ -1,0 +1,148 @@
+{
+	"@context": "http://id.loc.gov/authorities/names/context.json",
+	"@graph": [
+		{
+			"@id": "http://id.loc.gov/authorities/names/n00036379",
+			"@type": [
+				"madsrdf:Authority",
+				"madsrdf:PersonalName"
+			],
+			"bflc:marcKey": [
+				"1001 $aBelʹdiĭ, A. I︠A︡.",
+				{
+					"@language": "zxx-Cyrl",
+					"@value": "4001 $aБельдій, А. Я."
+				}
+			],
+			"identifiers:lccn": "n 00036379",
+			"madsrdf:adminMetadata": [
+				{
+					"@id": "_:n78421c9636754b149efb71fdde44c328b1"
+				},
+				{
+					"@id": "_:n78421c9636754b149efb71fdde44c328b2"
+				}
+			],
+			"madsrdf:authoritativeLabel": [
+				"Belʹdiĭ, A. I︠A︡.",
+				{
+					"@language": "zxx-Cyrl",
+					"@value": "Бельдій, А. Я."
+				}
+			],
+			"madsrdf:editorialNote": "[Non-Latin script reference not evaluated.]",
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:n78421c9636754b149efb71fdde44c328b3"
+					}
+				]
+			},
+			"madsrdf:hasExactExternalAuthority": {
+				"@id": "http://viaf.org/en/viaf/LC%7Cn%20%2000036379"
+			},
+			"madsrdf:hasSource": {
+				"@id": "_:n78421c9636754b149efb71fdde44c328b5"
+			},
+			"madsrdf:hasVariant": {
+				"@id": "_:n78421c9636754b149efb71fdde44c328b6"
+			},
+			"madsrdf:identifiesRWO": {
+				"@id": "http://id.loc.gov/rwo/agents/n00036379"
+			},
+			"madsrdf:isMemberOfMADSCollection": [
+				{
+					"@id": "http://id.loc.gov/authorities/names/collection_LCNAF"
+				},
+				{
+					"@id": "http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings"
+				}
+			],
+			"madsrdf:isMemberOfMADSScheme": {
+				"@id": "http://id.loc.gov/authorities/names"
+			}
+		},
+		{
+			"@id": "_:n78421c9636754b149efb71fdde44c328b1",
+			"@type": "ri:RecordInfo",
+			"ri:languageOfCataloging": {
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			},
+			"ri:recordChangeDate": {
+				"@type": "xsd:dateTime",
+				"@value": "2000-03-23T00:00:00"
+			},
+			"ri:recordContentSource": {
+				"@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+			},
+			"ri:recordStatus": "new"
+		},
+		{
+			"@id": "_:n78421c9636754b149efb71fdde44c328b2",
+			"@type": "ri:RecordInfo",
+			"ri:languageOfCataloging": {
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			},
+			"ri:recordChangeDate": {
+				"@type": "xsd:dateTime",
+				"@value": "2025-08-05T02:38:07"
+			},
+			"ri:recordContentSource": {
+				"@id": "http://id.loc.gov/vocabulary/organizations/icu"
+			},
+			"ri:recordStatus": "revised"
+		},
+		{
+			"@id": "_:n78421c9636754b149efb71fdde44c328b3",
+			"@type": "madsrdf:FullNameElement",
+			"madsrdf:elementValue": "Belʹdiĭ, A. I︠A︡."
+		},
+		{
+			"@id": "_:n78421c9636754b149efb71fdde44c328b5",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationNote": "t.p. (А.Я. Бельдій = A.I︠A︡. Belʹdiĭ)",
+			"madsrdf:citationSource": "Poezii︠a︡, 1998:",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:n78421c9636754b149efb71fdde44c328b6",
+			"@type": [
+				"madsrdf:PersonalName",
+				"madsrdf:Variant"
+			],
+			"bflc:marcKey": {
+				"@language": "zxx-Cyrl",
+				"@value": "4001 $aБельдій, А. Я."
+			},
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:n78421c9636754b149efb71fdde44c328b7"
+					}
+				]
+			},
+			"madsrdf:variantLabel": {
+				"@language": "zxx-Cyrl",
+				"@value": "Бельдій, А. Я."
+			}
+		},
+		{
+			"@id": "_:n78421c9636754b149efb71fdde44c328b7",
+			"@type": "madsrdf:FullNameElement",
+			"madsrdf:elementValue": "Бельдій, А. Я."
+		},
+		{
+			"@id": "http://id.loc.gov/rwo/agents/n00036379",
+			"@type": [
+				"bf:Person",
+				"madsrdf:RWO",
+				"http://xmlns.com/foaf/0.1/Person"
+			],
+			"madsrdf:isIdentifiedByAuthority": {
+				"@id": "http://id.loc.gov/authorities/names/n00036379"
+			},
+			"rdfs:label": "Belʹdiĭ, A. I︠A︡."
+		}
+	],
+	"@id": "/authorities/names/n00036379"
+}

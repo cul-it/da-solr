@@ -1,0 +1,62 @@
+<marcxml:record xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:marcxml="http://www.loc.gov/MARC21/slim">
+<marcxml:leader>01047cz a2200229n 4500</marcxml:leader>
+<marcxml:controlfield tag="001">n50071532</marcxml:controlfield>
+<marcxml:controlfield tag="003">DLC</marcxml:controlfield>
+<marcxml:controlfield tag="005">20250805014711.9</marcxml:controlfield>
+<marcxml:controlfield tag="008">810402n| aaannaabn |b ana </marcxml:controlfield>
+<marcxml:datafield tag="010" ind1=" " ind2=" ">
+<marcxml:subfield code="a">n 50071532 </marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="040" ind1=" " ind2=" ">
+<marcxml:subfield code="a">DLC</marcxml:subfield>
+<marcxml:subfield code="b">eng</marcxml:subfield>
+<marcxml:subfield code="c">DLC</marcxml:subfield>
+<marcxml:subfield code="d">DLC</marcxml:subfield>
+<marcxml:subfield code="d">OCoLC</marcxml:subfield>
+<marcxml:subfield code="d">DLC</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="110" ind1="1" ind2=" ">
+<marcxml:subfield code="a">Burma (Union).</marcxml:subfield>
+<marcxml:subfield code="b">Office of the Commissioner of Settlements and Land Records</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="410" ind1="1" ind2=" ">
+<marcxml:subfield code="a">Burma (Union).</marcxml:subfield>
+<marcxml:subfield code="b">Commissioner of Settlements and Land Records</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="410" ind1="1" ind2=" ">
+<marcxml:subfield code="a">Burma (Union).</marcxml:subfield>
+<marcxml:subfield code="b">Settlements and Land Records, Office of the Commissioner of</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="510" ind1="1" ind2=" ">
+<marcxml:subfield code="w">nnnd</marcxml:subfield>
+<marcxml:subfield code="a">Burma.</marcxml:subfield>
+<marcxml:subfield code="b">Land Records Department</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="510" ind1="1" ind2=" ">
+<marcxml:subfield code="w">nnnd</marcxml:subfield>
+<marcxml:subfield code="a">Burma.</marcxml:subfield>
+<marcxml:subfield code="b">Settlement Department</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="510" ind1="1" ind2=" ">
+<marcxml:subfield code="w">nnnd</marcxml:subfield>
+<marcxml:subfield code="a">Burma (Union).</marcxml:subfield>
+<marcxml:subfield code="b">Kreʺ tuiṅʻ nhaṅʻʹ mre cā raṅʻʺ Maṅʻʺ krīʺ Ruṃʺ</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="510" ind1="1" ind2=" ">
+<marcxml:subfield code="w">nnnd</marcxml:subfield>
+<marcxml:subfield code="a">Burma (Union).</marcxml:subfield>
+<marcxml:subfield code="b">Kyēitaing hnịn Myei Sayīn Mīn-kyī Yōn</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="665" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Its Statistical bulletins, 1949.</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="667" ind1=" " ind2=" ">
+<marcxml:subfield code="a">THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS RECORD HAS BEEN REVIEWED AND/OR UPDATED</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="667" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Unused subdivision: Statistical Dept.</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="670" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Its Statistical bulletins, 1949.</marcxml:subfield>
+</marcxml:datafield>
+</marcxml:record>

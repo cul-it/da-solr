@@ -1,0 +1,69 @@
+<marcxml:record xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:marcxml="http://www.loc.gov/MARC21/slim">
+<marcxml:leader>01612cz a2200253n 4500</marcxml:leader>
+<marcxml:controlfield tag="001">n00002040</marcxml:controlfield>
+<marcxml:controlfield tag="003">DLC</marcxml:controlfield>
+<marcxml:controlfield tag="005">20250805023651.8</marcxml:controlfield>
+<marcxml:controlfield tag="008">000229n| azannaabn |a aaa </marcxml:controlfield>
+<marcxml:datafield tag="010" ind1=" " ind2=" ">
+<marcxml:subfield code="a">n 00002040 </marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="040" ind1=" " ind2=" ">
+<marcxml:subfield code="a">DLC</marcxml:subfield>
+<marcxml:subfield code="b">eng</marcxml:subfield>
+<marcxml:subfield code="c">DLC</marcxml:subfield>
+<marcxml:subfield code="d">DLC</marcxml:subfield>
+<marcxml:subfield code="e">rda</marcxml:subfield>
+<marcxml:subfield code="d">DLC</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="046" ind1=" " ind2=" ">
+<marcxml:subfield code="f">1949</marcxml:subfield>
+<marcxml:subfield code="2">edtf</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="053" ind1=" " ind2="0">
+<marcxml:subfield code="a">PS3602.L325</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="100" ind1="1" ind2=" ">
+<marcxml:subfield code="a">Black, Michael A.,</marcxml:subfield>
+<marcxml:subfield code="d">1949-</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="400" ind1="1" ind2=" ">
+<marcxml:subfield code="a">Black, Michael Alfred,</marcxml:subfield>
+<marcxml:subfield code="d">1949-</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="500" ind1="1" ind2=" ">
+<marcxml:subfield code="w">nnnc</marcxml:subfield>
+<marcxml:subfield code="a">Hart, A. W.</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="500" ind1="1" ind2=" ">
+<marcxml:subfield code="w">nnnc</marcxml:subfield>
+<marcxml:subfield code="a">Pendleton, Don,</marcxml:subfield>
+<marcxml:subfield code="d">1927-1995</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="663" ind1=" " ind2=" ">
+<marcxml:subfield code="a">For works of this author written under other names, search also under:</marcxml:subfield>
+<marcxml:subfield code="b">Hart, A. W.</marcxml:subfield>
+<marcxml:subfield code="b">Pendleton, Don, 1927-1995</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="670" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Black, Michael A. Tanks, 2000:</marcxml:subfield>
+<marcxml:subfield code="b">CIP t.p. (Michael A. Black) book biog. (email from IWhI, Oct. 21, 2002: hobbies include reading, martial arts, running; police officer in Chicago metropolitan area)</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="670" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Phone call to pub., 02-29-00 (Michael A. Black, b. 10-31-1949)</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="670" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Phone call to publishers, 05-28-02 (Michael Alfred Black, b. 31 Oct. 1949)</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="670" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Volunteering to help kids, 2000:</marcxml:subfield>
+<marcxml:subfield code="b">CIP t.p. (Michael A. Black) book biog. (email from IWhI, Oct. 21, 2002: BA in English; police officer)</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="670" ind1=" " ind2=" ">
+<marcxml:subfield code="a">His A killing frost, 2002:</marcxml:subfield>
+<marcxml:subfield code="b">CIP t.p. (Michael A. Black) book biog. (email from IWhI, Oct. 21, 2002: BA in English; MFA in fiction writing; hobbies include weight-lifting, martial arts, running, bird watching; police officer in Matteson, Ill.)</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="670" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Killer's choice, 2019:</marcxml:subfield>
+<marcxml:subfield code="b">title page (A.W. Hart) about the author (Michael Black; genre writer; retired decorated police officer in Chicago; writes under pseudonyms and pens The Executioner series under the name Don Pendleton)</marcxml:subfield>
+</marcxml:datafield>
+</marcxml:record>

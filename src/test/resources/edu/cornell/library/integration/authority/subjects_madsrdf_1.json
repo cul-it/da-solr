@@ -1,0 +1,143 @@
+{
+	"@context": "http://id.loc.gov/authorities/subjects/context.json",
+	"@graph": [
+		{
+			"@id": "http://id.loc.gov/authorities/subjects/sh00000011",
+			"@type": [
+				"madsrdf:Authority",
+				"madsrdf:Topic"
+			],
+			"bflc:marcKey": "150  $aActionScript (Computer program language)",
+			"identifiers:lccn": "sh 00000011",
+			"madsrdf:adminMetadata": [
+				{
+					"@id": "_:n608d832d01f94268a74c2e624ce048ecb1"
+				},
+				{
+					"@id": "_:n608d832d01f94268a74c2e624ce048ecb2"
+				}
+			],
+			"madsrdf:authoritativeLabel": {
+				"@language": "en",
+				"@value": "ActionScript (Computer program language)"
+			},
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:n608d832d01f94268a74c2e624ce048ecb3"
+					}
+				]
+			},
+			"madsrdf:hasBroaderAuthority": [
+				{
+					"@id": "http://id.loc.gov/authorities/subjects/sh2006006405"
+				},
+				{
+					"@id": "http://id.loc.gov/authorities/subjects/sh2006007256"
+				},
+				{
+					"@id": "http://id.loc.gov/authorities/subjects/sh2007005223"
+				}
+			],
+			"madsrdf:hasSource": [
+				{
+					"@id": "_:n608d832d01f94268a74c2e624ce048ecb5"
+				},
+				{
+					"@id": "_:n608d832d01f94268a74c2e624ce048ecb6"
+				},
+				{
+					"@id": "_:n608d832d01f94268a74c2e624ce048ecb7"
+				}
+			],
+			"madsrdf:isMemberOfMADSCollection": [
+				{
+					"@id": "http://id.loc.gov/authorities/subjects/collection_LCSHAuthorizedHeadings"
+				},
+				{
+					"@id": "http://id.loc.gov/authorities/subjects/collection_LCSH_General"
+				}
+			],
+			"madsrdf:isMemberOfMADSScheme": {
+				"@id": "http://id.loc.gov/authorities/subjects"
+			},
+			"owl:sameAs": [
+				{
+					"@id": "http://id.loc.gov/authorities/sh00000011#concept"
+				},
+				{
+					"@id": "info:lc/authorities/sh00000011"
+				}
+			]
+		},
+		{
+			"@id": "_:n608d832d01f94268a74c2e624ce048ecb1",
+			"@type": "ri:RecordInfo",
+			"ri:languageOfCataloging": {
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			},
+			"ri:recordChangeDate": {
+				"@type": "xsd:dateTime",
+				"@value": "2000-09-27T00:00:00"
+			},
+			"ri:recordContentSource": {
+				"@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+			},
+			"ri:recordStatus": "new"
+		},
+		{
+			"@id": "_:n608d832d01f94268a74c2e624ce048ecb2",
+			"@type": "ri:RecordInfo",
+			"ri:languageOfCataloging": {
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			},
+			"ri:recordChangeDate": {
+				"@type": "xsd:dateTime",
+				"@value": "2007-10-12T07:53:10"
+			},
+			"ri:recordContentSource": {
+				"@id": "http://id.loc.gov/vocabulary/organizations/abau"
+			},
+			"ri:recordStatus": "revised"
+		},
+		{
+			"@id": "_:n608d832d01f94268a74c2e624ce048ecb3",
+			"@type": "madsrdf:TopicElement",
+			"madsrdf:elementValue": {
+				"@language": "en",
+				"@value": "ActionScript (Computer program language)"
+			}
+		},
+		{
+			"@id": "_:n608d832d01f94268a74c2e624ce048ecb5",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationNote": {
+				"@language": "en",
+				"@value": "(Actionscript is a modern object-oriented language)"
+			},
+			"madsrdf:citationSource": "Media Division Design and Software Development Studio WWW site, Aug. 25, 2006",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:n608d832d01f94268a74c2e624ce048ecb6",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationNote": {
+				"@language": "en",
+				"@value": "prelims. (ActionScript is a programming language that Flash provides) CIP galley (ActionScript is a scripting language that enables developers to supercharge their Flash movies)"
+			},
+			"madsrdf:citationSource": "Work cat.: 00047429: Sanders, B. Flash ActionScript f/x and design, 2000:",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:n608d832d01f94268a74c2e624ce048ecb7",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationNote": {
+				"@language": "en",
+				"@value": "(Category: Domain-specific programming languages ... ActionScript)"
+			},
+			"madsrdf:citationSource": "Wikipedia, July 19, 2007",
+			"madsrdf:citationStatus": "found"
+		}
+	],
+	"@id": "/authorities/subjects/sh00000011"
+}
