@@ -326,8 +326,9 @@ public class Format implements SolrFieldGenerator {
 		}
 		if (instance.containsKey("instanceFormatIds")) {
 			for (String formatId : (List<String>) instance.get("instanceFormatIds")) {
-				if (formatId == null) continue;
+				if (formatId == null || formatId.isBlank()) continue;
 				String format = SupportReferenceData.instanceFormats.getName(formatId);
+				if (format == null) continue;
 				String[] formatParts = format.split(" -- ");
 				switch (formatParts[0]) {
 				case "audio":
