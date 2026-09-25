@@ -94,12 +94,13 @@ public class DownloadMARC implements Catalog.DownloadMARC {
 					int subfieldId = 1;
 					List<Map<String,Object>> subfields = (List<Map<String,Object>>) fValue.get("subfields");
 					TreeSet<Subfield> processedSubfields = new TreeSet<>();
-					for (Map<String,Object> subfield : subfields) {
-						if ( subfield.isEmpty() ) continue;
-						String code = subfield.keySet().iterator().next();
-						processedSubfields.add(new Subfield( subfieldId++, code.charAt(0),
-								Normalizer.normalize((String) subfield.get(code),Normalizer.Form.NFC) ));
-					}
+					if (subfields != null)
+						for (Map<String,Object> subfield : subfields) {
+							if ( subfield.isEmpty() ) continue;
+							String code = subfield.keySet().iterator().next();
+							processedSubfields.add(new Subfield( subfieldId++, code.charAt(0),
+									Normalizer.normalize((String) subfield.get(code),Normalizer.Form.NFC) ));
+						}
 					Character ind1 = ((String)fValue.get("ind1")+" ").charAt(0); //if ind is empty, default to space
 					Character ind2 = ((String)fValue.get("ind2")+" ").charAt(0);
 					rec.dataFields.add(new DataField(fieldId++,field.getKey(),ind1,ind2,processedSubfields));
