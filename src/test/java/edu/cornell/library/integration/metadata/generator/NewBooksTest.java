@@ -3,13 +3,11 @@ package edu.cornell.library.integration.metadata.generator;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 import org.junit.Test;
 
@@ -93,10 +91,8 @@ public class NewBooksTest {
 
 	@Test
 	public void testFolioHoldings() throws SQLException, IOException {
-		String resourceDataJson = loadResourceFile("example_reference_data/locations.json");
-		SupportReferenceData.initializeLocations(resourceDataJson);
-		String instanceStatusesJson = loadResourceFile("example_reference_data/instance_statuses.json");
-		SupportReferenceData.initializeInstanceStatuses(instanceStatusesJson);
+		SupportReferenceData.initializeLocations("example_reference_data/locations.json");
+		SupportReferenceData.initializeInstanceStatuses("example_reference_data/instance_statuses.json");
 		String statusIdBatch = SupportReferenceData.instanceStatuses.getUuid("batch");
 		String statusIdCataloged = SupportReferenceData.instanceStatuses.getUuid("cat");
 
@@ -135,12 +131,5 @@ public class NewBooksTest {
 		meta.put("createdDate", createdDate);
 
 		return rec;
-	}
-	
-	public String loadResourceFile(String filename) throws IOException {
-		try ( InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filename);
-				Scanner s = new Scanner(is,"UTF-8")) {
-			return s.useDelimiter("\\A").next();
-		}
 	}
 }

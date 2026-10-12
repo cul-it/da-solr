@@ -15,7 +15,7 @@ class ReferenceDataTest {
 	
 	@BeforeEach
 	public void setup() throws IOException {
-		resourceDataJson = loadResourceFile("edu/cornell/library/integration/folio/instanceResourceTypes.json");
+		resourceDataJson = loadResourceFile("example_reference_data/instance-types.json");
 	}
 	
 	// create test utility class to share this function?

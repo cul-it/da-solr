@@ -4,8 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
@@ -218,4 +222,27 @@ public class TitleSeriesTest {
 		"author_addl_t: Beethoven, Ludwig van, 1770-1827.\n";
 		assertEquals( expected, this.gen.generateSolrFields(rec, null).toString() );
 	}
+
+	@Test
+	public void instanceSeriesTitleMap() throws IOException {
+		ObjectMapper mapper = new ObjectMapper();
+		// deserialize json to match object types in production
+		Map<String,Object> instance = mapper.readValue(
+				"{\"series\": [{\"value\": \"An Evening with Sherlock Holmes (WVHC Broadcast)\"}]}", Map.class);
+		String expected =
+		"title_series_t: An Evening with Sherlock Holmes (WVHC Broadcast)\n"+
+		"title_series_display: An Evening with Sherlock Holmes (WVHC Broadcast)\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
+	}
+
+	@Test
+	public void instanceSeriesTitleString() throws IOException {
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("series", Arrays.asList("An Evening with Sherlock Holmes (WVHC Broadcast)"));
+		String expected =
+		"title_series_t: An Evening with Sherlock Holmes (WVHC Broadcast)\n"+
+		"title_series_display: An Evening with Sherlock Holmes (WVHC Broadcast)\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
+	}
+
 }

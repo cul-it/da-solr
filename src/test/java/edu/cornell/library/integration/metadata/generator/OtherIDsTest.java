@@ -4,16 +4,25 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
+import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 
 public class OtherIDsTest {
 
 	SolrFieldGenerator gen = new OtherIDs();
 
+	@Before
+	public void before() throws IOException {
+		SupportReferenceData.initializeIdentifierTypes("example_reference_data/identifier-types.json");
+	}
 
 	@Test
 	public void test035() throws SQLException, IOException {
@@ -55,4 +64,38 @@ public class OtherIDsTest {
 		assertEquals(expected,this.gen.generateSolrFields(rec,null).toString());
 	}
 
+	@Test
+	public void instanceOCLCNumber() throws IOException {
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("identifiers", Arrays.asList(
+				new HashMap<String,Object>() {{
+					put("value","(OCoLC)156993816");
+					put("identifierTypeId",SupportReferenceData.identifierTypes.getUuid("OCLC"));  }},
+				new HashMap<String,Object>() {{
+					put("value","231-B");
+					put("identifierTypeId",SupportReferenceData.identifierTypes.getUuid("GPO item number"));  }},
+				new HashMap<String,Object>() {{
+					put("value","ATHM_Post1930_noCULholdings");
+					put("identifierTypeId",SupportReferenceData.identifierTypes.getUuid("Collection ID"));  }}
+				));
+		String expected =
+		"id_t: (OCoLC)156993816\n"+
+		"oclc_id_display: 156993816\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
+	}
+
+	@Test
+	public void instancePublisherNumber() throws IOException {
+		Map<String,Object> instance = new HashMap<>();
+		instance.put("identifiers", Arrays.asList(
+				new HashMap<String,Object>() {{
+					put("value","M.CD-422");
+					put("identifierTypeId",
+							SupportReferenceData.identifierTypes.getUuid("Publisher or distributor number"));  }}
+				));
+		String expected =
+		"id_t: M.CD-422\n"+
+		"publisher_number_display: M.CD-422\n";
+		assertEquals(expected,this.gen.generateNonMarcSolrFields(instance, null).toString());
+	}
 }

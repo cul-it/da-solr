@@ -5,6 +5,7 @@ import static edu.cornell.library.integration.utilities.FilingNormalization.getF
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.DataField.Script;
@@ -96,6 +97,29 @@ public class TitleSeries implements SolrFieldGenerator {
 		if (non490 == false) {
 			for (String d: display490s) sfs.add(new SolrField("title_series_display",d));
 			for (String cts: cts490s)   sfs.add(new SolrField("title_series_cts",cts));
+		}
+		return sfs;
+	}
+
+	@Override
+	public SolrFields generateNonMarcSolrFields( Map<String,Object> instance, Config unused) {
+		SolrFields sfs = new SolrFields();
+		if (! instance.containsKey("series")) return sfs;
+
+		for (Object series : (List) instance.get("series")) {
+			String title = null;
+			switch (series.getClass().getCanonicalName()) {
+			case "java.lang.String":
+				title = (String) series;
+				break;
+			case "java.util.LinkedHashMap":
+				title = ((Map<String,String>)series).getOrDefault( "value", null);
+				break;
+			}
+			if ( title != null && ! title.isBlank() ) {
+				sfs.add("title_series_t",title);
+				sfs.add("title_series_display",title);
+			}
 		}
 		return sfs;
 	}

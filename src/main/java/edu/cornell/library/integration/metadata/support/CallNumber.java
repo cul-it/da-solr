@@ -75,7 +75,7 @@ public class CallNumber {
 
 		boolean isLC = true;
 		if ( holding.containsKey("callNumberTypeId") ) {
-			String callNumberType = callNumberTypes.getName((String)holding.get("callNumberTypeId"));
+			String callNumberType = SupportReferenceData.callNumberTypes.getName((String)holding.get("callNumberTypeId"));
 			if ( callNumberType != null && ! callNumberType.equals("Library of Congress classification"))
 				isLC = false;
 		}

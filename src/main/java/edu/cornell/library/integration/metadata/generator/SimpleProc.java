@@ -1,17 +1,19 @@
 package edu.cornell.library.integration.metadata.generator;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import edu.cornell.library.integration.marc.DataField;
 import edu.cornell.library.integration.marc.MarcRecord;
 import edu.cornell.library.integration.marc.Subfield;
+import edu.cornell.library.integration.metadata.support.SupportReferenceData;
 import edu.cornell.library.integration.utilities.CharacterSetUtils;
 import edu.cornell.library.integration.utilities.Config;
 import edu.cornell.library.integration.utilities.IndexingUtilities;
 import edu.cornell.library.integration.utilities.SolrFields;
-import edu.cornell.library.integration.utilities.SolrFields.BooleanSolrField;
-import edu.cornell.library.integration.utilities.SolrFields.SolrField;
 
 public class SimpleProc implements SolrFieldGenerator {
 
@@ -250,34 +252,131 @@ public class SimpleProc implements SolrFieldGenerator {
 						if (displayCleanupChars != null)
 							displayValue = IndexingUtilities.removeTrailingPunctuation( displayValue, displayCleanupChars );
 						if (! displayValue.isEmpty())
-							sfs.add(new SolrField(displayField,displayValue));
+							sfs.add(displayField,displayValue);
 					}
 				} else {
 					String displayValue = f.concatenateSpecificSubfields(displaySubfields);
 					if (displayCleanupChars != null)
 						displayValue = IndexingUtilities.removeTrailingPunctuation( displayValue, displayCleanupChars );
 					if (! displayValue.isEmpty())
-						sfs.add(new SolrField(displayField,displayValue));
+						sfs.add(displayField,displayValue);
 				}
 			}
 			if (searchSubfields != null) {
 				String searchValue = f.concatenateSpecificSubfields(searchSubfields);
 				if (! searchValue.isEmpty()) {
 					if (f.getScript().equals(DataField.Script.CJK))
-						sfs.add(new SolrField(cjkSearchField,searchValue));
+						sfs.add(cjkSearchField,searchValue);
 					else {
 						if (CharacterSetUtils.hasCJK(searchValue))
-							sfs.add(new SolrField(cjkSearchField,searchValue));
-						sfs.add(new SolrField(searchField,CharacterSetUtils.standardizeApostrophes(searchValue)));
+							sfs.add(cjkSearchField,searchValue);
+						sfs.add(searchField,CharacterSetUtils.standardizeApostrophes(searchValue));
 						if (titleMode)
-							sfs.add(new SolrField(searchField,CharacterSetUtils.standardizeApostrophes(
-									f.getStringWithoutInitialArticle(searchValue))));
+							sfs.add(searchField,CharacterSetUtils.standardizeApostrophes(
+									f.getStringWithoutInitialArticle(searchValue)));
 					}
 				}
 			}
 		}
-		if (f300e) sfs.add(new BooleanSolrField("f300e_b",true));
+		if (f300e) sfs.add("f300e_b",true);
 
 		return sfs;
+	}
+
+	public SolrFields generateNonMarcSolrFields(Map<String,Object> instance, Config unused ) {
+		Map<String,String> fieldsToMap = new HashMap<>();
+		fieldsToMap.put("editions", "edition_display");
+		fieldsToMap.put("physicalDescriptions", "description_display");
+		SolrFields vals = new SolrFields();
+		for (Entry<String,String> e : fieldsToMap.entrySet())
+			if (instance.containsKey(e.getKey()))
+				for (String value : (List<String>)instance.get(e.getKey()))
+					if ( value != null && ! value.isBlank()) {
+						vals.add(e.getValue(), value);
+						vals.add("notes_t", value);
+					}
+		if (instance.containsKey("notes")) {
+			for (Map<String,Object> note : (List<Map<String,Object>>)instance.get("notes")) {
+
+				if ((boolean) note.getOrDefault("staffOnly", false)) continue;
+				if ( ! note.containsKey("instanceNoteTypeId")) continue;
+				String noteValue = (String)note.getOrDefault("note", null);
+				if (noteValue == null || noteValue.isBlank()) continue;
+
+				String displayField = null;
+				switch( SupportReferenceData.instanceNoteTypes.getName( (String)note.get("instanceNoteTypeId"))) {
+				case "General note":
+				case "With note":
+				case "Bibliography note":
+					displayField = "notes_display";  break;
+				case "Dissertation note":
+					displayField = "thesis_display"; break;
+				case "Summary":
+					displayField = "summary_display";break;
+				}
+				if (displayField != null) {
+					vals.add(displayField, noteValue);
+					vals.add("notes_t", noteValue);
+				}
+			}
+		}
+		if (instance.containsKey("alternativeTitles")) {
+			for (Map<String,String> altTitle : (List<Map<String,String>>)instance.get("alternativeTitles")) {
+
+				if ( ! altTitle.containsKey("alternativeTitleTypeId")) continue;
+				String titleValue = (String)altTitle.getOrDefault("alternativeTitle", null);
+				if (titleValue == null || titleValue.isBlank()) continue;
+
+				String displayField = null;
+				switch( SupportReferenceData.alternativeTitleTypes
+						.getName((String)altTitle.get("alternativeTitleTypeId"))) {
+				case "Other title":
+				case "Variant title":
+				case "Cover title":
+				case "Caption title":
+				case "Added title page title":
+				case "Parallel title":
+				case "Portion of title":
+				case "Running title":
+				case "Distinctive title":
+					displayField = "title_other_display";
+					break;
+				}
+				if (displayField != null) {
+					vals.add(displayField, titleValue);
+					vals.add("title_addl_t", titleValue);
+				}
+			}
+		}
+		if ( ! instance.containsKey("identifiers")) return vals;
+		for (Map<String,String> identifier : (List<Map<String, String>>) instance.get("identifiers")) {
+
+			if (! identifier.containsKey("identifierTypeId")) continue;
+			String idValue = (String)identifier.getOrDefault("value", null);
+			if (idValue == null || idValue.isBlank()) continue;
+			if (identifier.get("identifierTypeId") == null) {
+				System.out.format("NULL IDENTIFIER TYPE: %s\n",(String)instance.get("hrid"));
+				continue;}
+			String identifierType = SupportReferenceData.identifierTypes.getName((String)identifier.get("identifierTypeId"));
+			if (identifierType == null ) {
+				System.out.format("NULL IDENTIFIER TYPE ID (%s): %s\n",
+						(String)identifier.get("identifierTypeId"), 
+						(String)instance.get("hrid"));
+				continue; }
+			switch(identifierType) {
+			case "LCCN":
+				vals.add("lc_controlnum_display", idValue);
+				vals.add("lc_controlnum_s", idValue);
+				break;
+			case "ISSN":
+				vals.add("issn_display", idValue);
+				vals.add("issn_t", idValue);
+				break;
+			case "GPO item number":
+				vals.add("id_left_chunked",idValue);
+				break;
+			}
+		}
+		return vals;
 	}
 }

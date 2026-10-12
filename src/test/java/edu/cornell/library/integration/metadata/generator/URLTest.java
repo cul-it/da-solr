@@ -3,14 +3,12 @@ package edu.cornell.library.integration.metadata.generator;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.TreeMap;
 
 import org.junit.BeforeClass;
@@ -28,19 +26,10 @@ public class URLTest {
 	static Map<String,Object> onlineFolioHolding ;
 	static List<Map<String,Object>> onlineFolioHoldingList ;
 	static Config config;
-	private static String resourceDataJson = null;
-	
-	public static String loadResourceFile(String filename) throws IOException {
-		try ( InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(filename);
-				Scanner s = new Scanner(is,"UTF-8")) {
-			return s.useDelimiter("\\A").next();
-		}
-	}
 
 	@BeforeClass
 	public static void createServRemoHolding() throws IOException {
-		resourceDataJson = loadResourceFile("example_reference_data/locations.json");
-		SupportReferenceData.initializeLocations(resourceDataJson);
+		SupportReferenceData.initializeLocations("example_reference_data/locations.json");
 		String onlineLocId = SupportReferenceData.locations.getUuid("serv,remo");
 		onlineFolioHolding = new HashMap<>();
 		onlineFolioHolding.put("permanentLocationId", onlineLocId);
