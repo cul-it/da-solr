@@ -1,6 +1,5 @@
 package edu.cornell.library.integration.authority.activitystreams;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
@@ -25,26 +24,33 @@ import edu.cornell.library.integration.authority.AuthoritySource;
 import edu.cornell.library.integration.authority.mads.DbUtils;
 import edu.cornell.library.integration.authority.mads.HeadingType;
 import edu.cornell.library.integration.authority.mads.RecordStatus;
-import edu.cornell.library.integration.db_test.DbBaseTest;
+import edu.cornell.library.integration.db_test.CustomDbSetupTest;
 
-public class BulkDownloadHandlerTest extends DbBaseTest {
+public class BulkDownloadHandlerTest extends CustomDbSetupTest {
 	static Map<String, Path> resources = new LinkedHashMap<>();
+	static final Path rootPath = Path.of("src", "test", "resources", "edu", "cornell", "library", "integration", "authority");
 
 	@BeforeAll
-	public static void setup() throws IOException, SQLException {
-		setup("Authority");
-		String base = Path.of("src", "test", "resources", "edu", "cornell", "library", "integration", "authority").toString();
-		if (useTestContainers != null) {
-			try (Connection authority = config.getDatabaseConnection("Authority")) {
-				Utils.setUpDatabase(authority);
+	public static void setup() throws IOException, SQLException, InterruptedException, JsonLdError, URISyntaxException {
+		String base = rootPath.toString();
+		sqliteExtraSql = Path.of(base, "authority_extra_sqlite_create.sql").toString();
+		testContainersSetupFunctions.add(conn -> {
+			try {
+				Utils.setUpDatabase(conn);
+				return null;
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
 			}
-		} else if (useSqlite != null) {
-			String extraSqlite = Path.of(base, "authority_extra_sqlite_create.sql").toString();
-			String sql = new File(extraSqlite).getAbsolutePath();
-			try (Connection authority = config.getDatabaseConnection("Authority")) {
-				DbBaseTest.runStmt(Arrays.asList(sql), authority);
+		});
+		clearFunctions.add(conn -> {
+			try {
+				Utils.clearDatabase(conn);
+				return null;
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
 			}
-		}
+		});
+		custom_setup();
 
 		for (String file : Arrays.asList("names_madsrdf_1.json", "names_madsrdf_2.json",
 				"subjects_madsrdf_1.json", "names_madsrdf_subdivision_1.json",

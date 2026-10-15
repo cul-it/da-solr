@@ -17,5 +17,5 @@ CREATE TABLE `madsReferenceType` (`id` int NOT NULL, `name` text NOT NULL, PRIMA
 CREATE TABLE `madsReference` (`id` integer NOT NULL PRIMARY KEY AUTOINCREMENT, `from_heading` integer NOT NULL, `to_heading` integer NOT NULL, `ref_type` integer NOT NULL, `ref_desc` varchar(256) NOT NULL DEFAULT '', UNIQUE (`from_heading`,`to_heading`,`ref_type`,`ref_desc`));
 CREATE TABLE `rwo` (`id` varchar(210) NOT NULL, `label` varchar(210) NOT NULL, `associatedLocale` mediumtext DEFAULT NULL, `birthPlace` mediumtext DEFAULT NULL, `deathPlace` mediumtext DEFAULT NULL, `fieldOfActivities` mediumtext DEFAULT NULL, `hasAffiliations` mediumtext DEFAULT NULL, `occupation` mediumtext DEFAULT NULL, PRIMARY KEY (`id`));
 -- CREATE TABLE `replacement_headings` (`orig_sort` mediumtext NOT NULL, `preferred_display` text NOT NULL);
-CREATE TABLE `headingsUpdateCursor` (`cursor_name` text NOT NULL, `current_to_date` text DEFAULT NULL, PRIMARY KEY (`cursor_name`));
+CREATE TABLE IF NOT EXISTS `headingsUpdateCursor` (`cursor_name` text NOT NULL, `current_to_date` text DEFAULT NULL, PRIMARY KEY (`cursor_name`));
 CREATE TABLE IF NOT EXISTS madsAuthorityIngestCursor (`cursor_name` text NOT NULL, `current_ingest_id` BIGINT NOT NULL DEFAULT 0, PRIMARY KEY (`cursor_name`))
