@@ -1,0 +1,41 @@
+<marcxml:record xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:marcxml="http://www.loc.gov/MARC21/slim">
+  <marcxml:leader>00672cz  a2200169n  4500</marcxml:leader>
+  <marcxml:controlfield tag="001">n00000054</marcxml:controlfield>
+  <marcxml:controlfield tag="003">DLC</marcxml:controlfield>
+  <marcxml:controlfield tag="005">20250805023410.1</marcxml:controlfield>
+  <marcxml:controlfield tag="008">000104n| azannaabn          |n aaa      </marcxml:controlfield>
+  <marcxml:datafield tag="010" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">n  00000054 </marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="040" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">DLC</marcxml:subfield>
+    <marcxml:subfield code="b">eng</marcxml:subfield>
+    <marcxml:subfield code="e">rda</marcxml:subfield>
+    <marcxml:subfield code="c">DLC</marcxml:subfield>
+    <marcxml:subfield code="d">CSt</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="046" ind1=" " ind2=" ">
+    <marcxml:subfield code="f">1963-04-14</marcxml:subfield>
+    <marcxml:subfield code="2">edtf</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="100" ind1="1" ind2=" ">
+    <marcxml:subfield code="a">Siegel, Jonah,</marcxml:subfield>
+    <marcxml:subfield code="d">1963-</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="373" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">Rutgers University</marcxml:subfield>
+    <marcxml:subfield code="2">naf</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="374" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">College teachers</marcxml:subfield>
+    <marcxml:subfield code="2">lcsh</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="670" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">Siegel, Jonah. Desire and excess, 2000:</marcxml:subfield>
+    <marcxml:subfield code="b">CIP t.p. (Jonah Siegel) data sheet (b. 04-14-63)</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="670" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">Overlooking damage, 2022:</marcxml:subfield>
+    <marcxml:subfield code="b">ECIP title page (Jonah Siegel) pub. info. (Distinguished Professor of English at Rutgers University and Co-Director of the Rutgers British Studies Center)</marcxml:subfield>
+  </marcxml:datafield>
+</marcxml:record>

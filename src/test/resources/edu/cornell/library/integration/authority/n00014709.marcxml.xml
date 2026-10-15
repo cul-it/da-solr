@@ -1,0 +1,64 @@
+<marcxml:record xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:marcxml="http://www.loc.gov/MARC21/slim">
+<marcxml:leader>01084cz a2200229n 4500</marcxml:leader>
+<marcxml:controlfield tag="001">n00014709</marcxml:controlfield>
+<marcxml:controlfield tag="003">DLC</marcxml:controlfield>
+<marcxml:controlfield tag="005">20250805024500.9</marcxml:controlfield>
+<marcxml:controlfield tag="008">000728n| azannaabn |b aaa </marcxml:controlfield>
+<marcxml:datafield tag="010" ind1=" " ind2=" ">
+<marcxml:subfield code="a">n 00014709 </marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="024" ind1="7" ind2=" ">
+<marcxml:subfield code="a">66687897</marcxml:subfield>
+<marcxml:subfield code="2">viaf</marcxml:subfield>
+<marcxml:subfield code="1">http://viaf.org/viaf/66687897</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="040" ind1=" " ind2=" ">
+<marcxml:subfield code="a">DLC</marcxml:subfield>
+<marcxml:subfield code="b">eng</marcxml:subfield>
+<marcxml:subfield code="e">rda</marcxml:subfield>
+<marcxml:subfield code="c">DLC</marcxml:subfield>
+<marcxml:subfield code="d">OCoLC</marcxml:subfield>
+<marcxml:subfield code="d">NNC</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="046" ind1=" " ind2=" ">
+<marcxml:subfield code="f">1929-04-20</marcxml:subfield>
+<marcxml:subfield code="g">2006-02-04</marcxml:subfield>
+<marcxml:subfield code="2">edtf</marcxml:subfield>
+<marcxml:subfield code="v">Whoplus, Nov. 10, 2022</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="100" ind1="1" ind2=" ">
+<marcxml:subfield code="a">Nishimura, Shigeo,</marcxml:subfield>
+<marcxml:subfield code="d">1929-2006</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="373" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Tōkyō Nōkō Daigaku</marcxml:subfield>
+<marcxml:subfield code="2">naf</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="400" ind1="1" ind2=" ">
+<marcxml:subfield code="w">nnea</marcxml:subfield>
+<marcxml:subfield code="a">Nishimura, Shigeo,</marcxml:subfield>
+<marcxml:subfield code="d">1929-</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="400" ind1="1" ind2=" ">
+<marcxml:subfield code="a">西村重夫,</marcxml:subfield>
+<marcxml:subfield code="d">1929-2006</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="667" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Machine-derived non-Latin script reference project.</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="667" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Non-Latin script reference not evaluated.</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="670" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Nishimura, Shigeo. Handbook of heterogeneous catalytic hydrogenation for organic synthesis, 2001:</marcxml:subfield>
+<marcxml:subfield code="b">CIP t.p. (Shigeo Nishimura; prof. emeritus, Tokyo University of Agriculture and Technology)</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="670" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Kenkyūsha sōran, shizen, 1990:</marcxml:subfield>
+<marcxml:subfield code="b">p. 2424 (Nishimura Shigeo; b. Apr. 20, 1929)</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="670" ind1=" " ind2=" ">
+<marcxml:subfield code="a">JTNDL in VIAF, Nov. 10, 2022</marcxml:subfield>
+<marcxml:subfield code="b">(access point: 西村, 重夫, 1929- = Nishimura, Shigeo, 1929- ; r)</marcxml:subfield>
+</marcxml:datafield>
+</marcxml:record>

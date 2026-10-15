@@ -1,0 +1,25 @@
+<marcxml:record xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:marcxml="http://www.loc.gov/MARC21/slim">
+  <marcxml:leader>00559cz a2200121n 4500</marcxml:leader>
+  <marcxml:controlfield tag="001">sh2001001501</marcxml:controlfield>
+  <marcxml:controlfield tag="003">DLC</marcxml:controlfield>
+  <marcxml:controlfield tag="005">20040921095422.0</marcxml:controlfield>
+  <marcxml:controlfield tag="008">040813|| anannbabn |n ana </marcxml:controlfield>
+  <marcxml:datafield tag="010" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">sh2001001501</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="040" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">DLC</marcxml:subfield>
+    <marcxml:subfield code="b">eng</marcxml:subfield>
+    <marcxml:subfield code="c">DLC</marcxml:subfield>
+    <marcxml:subfield code="d">DLC</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="110" ind1="1" ind2=" ">
+    <marcxml:subfield code="a">Texas.</marcxml:subfield>
+    <marcxml:subfield code="t">Declaration of Independence</marcxml:subfield>
+    <marcxml:subfield code="x">Signers</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="670" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">Work cat.: NUCMC data from Daughters of the Republic of Texas (San Antonio, Tex.) for Descendants of the Signers of the Texas Declaration of Independence. Records, 1937-1953</marcxml:subfield>
+    <marcxml:subfield code="b">(containing genealogical information on the signers of the Texas Declaration of Independence)</marcxml:subfield>
+  </marcxml:datafield>
+</marcxml:record>
