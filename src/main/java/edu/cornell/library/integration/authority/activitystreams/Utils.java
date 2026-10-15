@@ -94,17 +94,28 @@ public class Utils {
 	}
 
 	public static PreparedStatement replaceStmt(Connection authorityDB) throws SQLException {
+		// ensureIngestionSequence(authorityDB);
 		return authorityDB.prepareStatement(
 				"""
 REPLACE INTO %s (id,lccn,vocabulary,recordStatus,heading,headingType,isSubdivision,undifferentiated,moddate,addedDate,numUpdates,source)
 	VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""".formatted(DbUtils.MADS_UPDATE_TABLE));
 	}
 
+	// public static void ensureIngestionSequence(Connection authorityDB) throws SQLException {
+	// 	try (var columns = authorityDB.getMetaData().getColumns(authorityDB.getCatalog(), null, DbUtils.MADS_UPDATE_TABLE, "ingestId")) {
+	// 		if (columns.next()) return;
+	// 	}
+	// 	try (Statement stmt = authorityDB.createStatement()) {
+	// 		stmt.execute("ALTER TABLE %s ADD COLUMN `ingestId` BIGINT NOT NULL AUTO_INCREMENT, ADD UNIQUE KEY `unique_ingest_id` (`ingestId`)".formatted(DbUtils.MADS_UPDATE_TABLE));
+	// 	}
+	// }
+
 	public static void setUpDatabase(Connection authority) throws SQLException {
 		List<String> sqls = Arrays.asList(
 			// Authority tables
 			"""
 CREATE TABLE IF NOT EXISTS `%s` (
+	`ingestId` BIGINT NOT NULL AUTO_INCREMENT,
 	`id` VARCHAR(210) NOT NULL,
 	`lccn` VARCHAR(50) DEFAULT NULL,
 	`vocabulary` TINYINT(4) DEFAULT NULL,
@@ -118,6 +129,7 @@ CREATE TABLE IF NOT EXISTS `%s` (
 	`numUpdates` INT DEFAULT 0,
 	`source` JSON NOT NULL,
 	UNIQUE KEY `unique_id` (`id`, `numUpdates`, `moddate`),
+	UNIQUE KEY `unique_ingest_id` (`ingestId`),
 	KEY `idx_id` (`id`),
 	KEY `idx_added_date` (`addedDate`),
 	KEY `idx_heading` (heading(255)),
@@ -147,6 +159,7 @@ CREATE TABLE IF NOT EXISTS `%s` (
 			for (String sql : sqls)
 				stmt.execute(sql);
 		}
+		// ensureIngestionSequence(authority);
 
 		try ( PreparedStatement insertDesc = authority.prepareStatement(
 				"REPLACE INTO %s (id,name) VALUES (? , ?)".formatted(DbUtils.MADS_HEADING_TYPE_TABLE)) ) {

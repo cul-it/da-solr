@@ -1,11 +1,9 @@
 package edu.cornell.library.integration.authority.mads;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -72,37 +70,56 @@ public class IndexMadsAuthorityRecordsTest extends CustomDbSetupTest {
 		DbUtils.fetcher = new IFetcher.TestFetcher(httpFetcher, fileFetcher);
 	}
 
-	protected void initUpdateTable(List<String> ids) throws SQLException, UnsupportedEncodingException, FileNotFoundException, IOException {
-		try (Connection conn = config.getDatabaseConnection("Headings")) {
-			for (String extraSql : extraInsertSqls)
-				DbBaseTest.executeStmt(Arrays.asList(extraSql), conn);
-			String sql = "DELETE FROM " + DbUtils.MADS_UPDATE_TABLE + " WHERE id not in ('" + String.join("','", ids) + "')";
-			conn.createStatement().executeUpdate(sql);
-		}
-	}
-
 	@Test
 	public void testIndexMadsAuthorityRecords() throws Exception {
 		/*
 			Index two records - http://id.loc.gov/authorities/genreForms/gf2010025067, http://id.loc.gov/authorities/names/n50000589
+			Remove all other records from the update table
 		*/
-		initUpdateTable(Arrays.asList("http://id.loc.gov/authorities/genreForms/gf2010025067", "http://id.loc.gov/authorities/names/n50000589"));
+		List<String> ids = Arrays.asList("http://id.loc.gov/authorities/genreForms/gf2010025067", "http://id.loc.gov/authorities/names/n50000589");
+		try (Connection conn = config.getDatabaseConnection("Headings")) {
+			try (PreparedStatement pstmt = conn.prepareStatement("SELECT id, ingestId FROM " + DbUtils.MADS_UPDATE_TABLE)) {
+				try (var rs = pstmt.executeQuery()) {
+					while (rs.next()) {
+						System.out.println("ID: " + rs.getString("id") + ", Ingest ID: " + rs.getString("ingestId"));
+					}
+				}
+			}
+			String sql = "DELETE FROM " + DbUtils.MADS_UPDATE_TABLE + " WHERE id not in ('" + String.join("','", ids) + "')";
+			conn.createStatement().executeUpdate(sql);
+		}
 		IndexMadsAuthorityRecords.indexAllMadsAuthorityRecords(config, false);
 
+		long cursorAfterIndexAll;
 		try (Connection conn = config.getDatabaseConnection("Headings")) {
 			System.out.println("Cursor after indexing all: " + DbUtils.cursor(conn));
-			assert "2026-08-26".equalsIgnoreCase(DbUtils.cursor(conn));
+			assert DbUtils.cursor(conn) > 0;
+			cursorAfterIndexAll = DbUtils.cursor(conn);
+			/*
+				gf2010025067 is the first row and n50000589 is the 10th row.
+				In this test, we removed all other rows and expect the cursor to reflect only the remaining rows.
+			 */
+			assert cursorAfterIndexAll == 10;
 		}
 
 		/*
 			Index one new record - http://id.loc.gov/authorities/subjects/sh97007140
+			Add last element from the extraInsertSqls
 		 */
-		initUpdateTable(Arrays.asList("http://id.loc.gov/authorities/subjects/sh97007140"));
+		try (Connection conn = config.getDatabaseConnection("Headings")) {
+			DbBaseTest.executeStmt(Arrays.asList(extraInsertSqls.get(extraInsertSqls.size() - 1)), conn);
+		}
 		IndexMadsAuthorityRecords.indexNewMadsAuthorityRecords(config);
 
 		try (Connection conn = config.getDatabaseConnection("Headings")) {
 			System.out.println("Cursor after indexing new: " + DbUtils.cursor(conn));
-			assert "2026-09-26".equalsIgnoreCase(DbUtils.cursor(conn));
+			assert DbUtils.cursor(conn) > cursorAfterIndexAll;
+			/*
+				Before we deleted all the rows, there were 34 rows in the table.
+				We added the last row again which increases the DbUtils.MADS_UPDATE_TABLE.ingestId by one - 35.
+				After indexing the new record, the cursor should reflect the updated ingestId, which is 35.
+			 */
+			assert DbUtils.cursor(conn) == 35;
 		}
 	}
 }

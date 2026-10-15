@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `madsAuthorityUpdate` (`id` text NOT NULL, `lccn` text DEFAULT NULL, `vocabulary` int DEFAULT NULL, `recordStatus` int DEFAULT NULL, `heading` text DEFAULT NULL, `headingType` int DEFAULT NULL, `isSubdivision` int DEFAULT NULL, `undifferentiated` int DEFAULT NULL, `moddate` text DEFAULT NULL, `addedDate` text DEFAULT NULL, `numUpdates` int DEFAULT 0, source text NOT NULL, PRIMARY KEY (`id`, `numUpdates`, `moddate`));
+CREATE TABLE IF NOT EXISTS `madsAuthorityUpdate` (`ingestId` INTEGER PRIMARY KEY AUTOINCREMENT, `id` text NOT NULL, `lccn` text DEFAULT NULL, `vocabulary` int DEFAULT NULL, `recordStatus` int DEFAULT NULL, `heading` text DEFAULT NULL, `headingType` int DEFAULT NULL, `isSubdivision` int DEFAULT NULL, `undifferentiated` int DEFAULT NULL, `moddate` text DEFAULT NULL, `addedDate` text DEFAULT NULL, `numUpdates` int DEFAULT 0, source text NOT NULL, UNIQUE (`id`, `numUpdates`, `moddate`));
 CREATE TABLE IF NOT EXISTS `madsAuthorityHeadingType` (`id` int NOT NULL, `name` VARCHAR(256) NOT NULL, PRIMARY KEY (`id`));
 CREATE TABLE IF NOT EXISTS `madsAuthorityRecordStatus` (`id` int NOT NULL, `name` VARCHAR(256) NOT NULL, PRIMARY KEY (`id`));
 CREATE TABLE IF NOT EXISTS `realWorldObject` (`id` text NOT NULL, `label` text NOT NULL, `source` text NOT NULL, PRIMARY KEY (`id`));
@@ -18,3 +18,4 @@ CREATE TABLE `madsReference` (`id` integer NOT NULL PRIMARY KEY AUTOINCREMENT, `
 CREATE TABLE `rwo` (`id` varchar(210) NOT NULL, `label` varchar(210) NOT NULL, `associatedLocale` mediumtext DEFAULT NULL, `birthPlace` mediumtext DEFAULT NULL, `deathPlace` mediumtext DEFAULT NULL, `fieldOfActivities` mediumtext DEFAULT NULL, `hasAffiliations` mediumtext DEFAULT NULL, `occupation` mediumtext DEFAULT NULL, PRIMARY KEY (`id`));
 -- CREATE TABLE `replacement_headings` (`orig_sort` mediumtext NOT NULL, `preferred_display` text NOT NULL);
 CREATE TABLE `headingsUpdateCursor` (`cursor_name` text NOT NULL, `current_to_date` text DEFAULT NULL, PRIMARY KEY (`cursor_name`));
+CREATE TABLE IF NOT EXISTS madsAuthorityIngestCursor (`cursor_name` text NOT NULL, `current_ingest_id` BIGINT NOT NULL DEFAULT 0, PRIMARY KEY (`cursor_name`))

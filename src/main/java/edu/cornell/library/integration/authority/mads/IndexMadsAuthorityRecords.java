@@ -37,7 +37,7 @@ public class IndexMadsAuthorityRecords {
 		}
 	}
 
-	protected static String indexAllMadsAuthorityRecords(Config config, boolean setupDb) throws IOException, SQLException, JsonLdError, URISyntaxException, InterruptedException {
+	protected static Long indexAllMadsAuthorityRecords(Config config, boolean setupDb) throws IOException, SQLException, JsonLdError, URISyntaxException, InterruptedException {
 		config.setDatabasePoolsize("Headings", 2);
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
@@ -48,7 +48,7 @@ public class IndexMadsAuthorityRecords {
 			}
 
 			authority.setAutoCommit(false);
-			String maxAddedDate = DbUtils.maxAddedDate(authority);
+			long highWaterMark = DbUtils.maxIngestId(authority);
 			Set<String> identifiers = DbUtils.identifiers(authority);
 			authority.setAutoCommit(true);
 
@@ -58,22 +58,22 @@ public class IndexMadsAuthorityRecords {
 				headings.commit();
 			}
 
-			DbUtils.cursorReplace(headings, maxAddedDate);
+			DbUtils.cursorReplace(headings, highWaterMark);
 			headings.commit();
 
-			return maxAddedDate;
+			return highWaterMark;
 		}
 	}
 
-	protected static String indexNewMadsAuthorityRecords(Config config) throws IOException, SQLException, JsonLdError, URISyntaxException, InterruptedException {
+	protected static Long indexNewMadsAuthorityRecords(Config config) throws IOException, SQLException, JsonLdError, URISyntaxException, InterruptedException {
 		config.setDatabasePoolsize("Headings", 2);
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
-			String cursor = DbUtils.cursor(headings);
+			long cursor = DbUtils.cursor(headings, authority);
 
 			authority.setAutoCommit(false);
-			String maxAddedDate = DbUtils.maxAddedDate(authority);
-			Set<String> identifiers = DbUtils.identifiersNewerThan(authority, cursor);
+			long highWaterMark = DbUtils.maxIngestId(authority);
+			Set<String> identifiers = DbUtils.identifiersNewerThan(authority, cursor, highWaterMark);
 			authority.setAutoCommit(true);
 
 			headings.setAutoCommit(false);
@@ -84,10 +84,10 @@ public class IndexMadsAuthorityRecords {
 					headings.rollback();
 			}
 
-			DbUtils.cursorReplace(headings, maxAddedDate);
+			DbUtils.cursorReplace(headings, highWaterMark);
 			headings.commit();
 
-			return maxAddedDate;
+			return highWaterMark;
 		}
 	}
 

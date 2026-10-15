@@ -41,6 +41,7 @@ public class DbUtils {
 	// cursor
 	public static final String HEADINGS_CURSOR_INDEX_MADS_AUTHORITY_RECORDS = "indexMadsAuthorityRecords";
 	public static final String HEADINGS_UPDATE_CURSOR_TABLE = "headingsUpdateCursor";
+	public static final String MADS_INGEST_CURSOR_TABLE = "madsAuthorityIngestCursor";
 
 	public static IFetcher fetcher = new IFetcher.HttpFetcher();
 
@@ -166,10 +167,26 @@ CREATE TABLE IF NOT EXISTS %s (
 	`current_to_date` char(10) DEFAULT NULL,
 	PRIMARY KEY (`cursor_name`))
 ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci""".formatted(HEADINGS_UPDATE_CURSOR_TABLE));
+
+			stmt.execute("""
+CREATE TABLE IF NOT EXISTS %s (
+	`cursor_name` VARCHAR(40) NOT NULL,
+	`current_ingest_id` BIGINT NOT NULL DEFAULT 0,
+	PRIMARY KEY (`cursor_name`))""".formatted(MADS_INGEST_CURSOR_TABLE));
 		}
 
 		populateStaticData(headings);
 	}
+
+// 	public static void ensureMadsIngestCursorTable(Connection headings) throws SQLException {
+// 		try (Statement stmt = headings.createStatement()) {
+// 			stmt.execute("""
+// CREATE TABLE IF NOT EXISTS %s (
+// 	`cursor_name` VARCHAR(40) NOT NULL,
+// 	`current_ingest_id` BIGINT NOT NULL DEFAULT 0,
+// 	PRIMARY KEY (`cursor_name`))""".formatted(MADS_INGEST_CURSOR_TABLE));
+// 		}
+// 	}
 
 	protected static void populateStaticData( Connection headings ) throws SQLException {
 		try ( PreparedStatement insertDesc = headings.prepareStatement(
@@ -214,7 +231,8 @@ ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci""".formatted(HE
 											  MADS_AUTHORITY_SOURCE_TABLE,
 											  MADS_AUTHORITY_TO_HEADING_TABLE,
 											  MADS_BIB_TO_HEADING_TABLE,
-											  HEADINGS_UPDATE_CURSOR_TABLE))
+											  HEADINGS_UPDATE_CURSOR_TABLE,
+											  MADS_INGEST_CURSOR_TABLE))
 				stmt.execute("DROP TABLE IF EXISTS " + table);
 		}
 	}
@@ -336,7 +354,7 @@ ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci""".formatted(RW
 SELECT *
 FROM %s
 WHERE id = ?
-ORDER BY addedDate DESC
+ORDER BY ingestId DESC
 LIMIT 1""".formatted(MADS_UPDATE_TABLE))) {
 			stmt.setString(1, identifier);
 			try (ResultSet rs = stmt.executeQuery()) {
@@ -377,23 +395,43 @@ LIMIT 1""".formatted(MADS_UPDATE_TABLE))) {
 		return headings.prepareStatement("SELECT reference_id FROM %s WHERE reference_id = ?".formatted(MADS_AUTHORITY_TO_REFERENCE_TABLE));
 	}
 
-	public static String cursor(Connection headings) throws SQLException {
+	public static long cursor(Connection headings) throws SQLException {
 		try ( PreparedStatement pstmt = headings.prepareStatement(
-				"SELECT current_to_date FROM %s WHERE cursor_name = ?".formatted(HEADINGS_UPDATE_CURSOR_TABLE)) ) {
+				"SELECT current_ingest_id FROM %s WHERE cursor_name = ?".formatted(MADS_INGEST_CURSOR_TABLE)) ) {
 			pstmt.setString(1, HEADINGS_CURSOR_INDEX_MADS_AUTHORITY_RECORDS);
 			try ( ResultSet resultSet = pstmt.executeQuery() ) {
-				if (resultSet.next()) return resultSet.getString(1);
+				if (resultSet.next()) return resultSet.getLong(1);
 			}
 		}
 
-		return null;
+		return 0;
 	}
 
-	public static int cursorReplace(Connection headings, String newCursor) throws SQLException {
-		try ( PreparedStatement pstmt = headings.prepareStatement(
-				"REPLACE INTO %s (cursor_name, current_to_date) VALUES (?,?)".formatted(HEADINGS_UPDATE_CURSOR_TABLE)) ) {
+	public static long cursor(Connection headings, Connection authority) throws SQLException {
+		long ingestCursor = cursor(headings);
+		if (ingestCursor > 0) return ingestCursor;
+
+		try (PreparedStatement pstmt = headings.prepareStatement(
+				"SELECT current_to_date FROM %s WHERE cursor_name = ?".formatted(HEADINGS_UPDATE_CURSOR_TABLE))) {
 			pstmt.setString(1, HEADINGS_CURSOR_INDEX_MADS_AUTHORITY_RECORDS);
-			pstmt.setString(2, newCursor);
+			try (ResultSet rs = pstmt.executeQuery()) {
+				if (!rs.next() || rs.getString(1) == null) return ingestCursor;
+				try (PreparedStatement sequenceStmt = authority.prepareStatement(
+						"SELECT COALESCE(MIN(ingestId) - 1, (SELECT COALESCE(MAX(ingestId), 0) FROM %s)) FROM %s WHERE addedDate >= ?".formatted(MADS_UPDATE_TABLE, MADS_UPDATE_TABLE))) {
+					sequenceStmt.setString(1, rs.getString(1));
+					try (ResultSet sequenceRs = sequenceStmt.executeQuery()) {
+						return sequenceRs.next() ? sequenceRs.getLong(1) : 0;
+					}
+				}
+			}
+		}
+	}
+
+	public static int cursorReplace(Connection headings, long newCursor) throws SQLException {
+		try ( PreparedStatement pstmt = headings.prepareStatement(
+				"REPLACE INTO %s (cursor_name, current_ingest_id) VALUES (?,?)".formatted(MADS_INGEST_CURSOR_TABLE)) ) {
+			pstmt.setString(1, HEADINGS_CURSOR_INDEX_MADS_AUTHORITY_RECORDS);
+			pstmt.setLong(2, newCursor);
 			return pstmt.executeUpdate();
 		}
 	}
@@ -444,10 +482,11 @@ LIMIT 1""".formatted(MADS_UPDATE_TABLE))) {
 		return identifiers;
 	}
 
-	public static Set<String> identifiersNewerThan(Connection authorityDB, String cursor) throws SQLException {
+	public static Set<String> identifiersNewerThan(Connection authorityDB, long cursor, long highWaterMark) throws SQLException {
 		Set<String> identifiers = new TreeSet<>();
-		try ( PreparedStatement pstmt = authorityDB.prepareStatement("SELECT DISTINCT id FROM %s WHERE addedDate > ?".formatted(MADS_UPDATE_TABLE))) {
-			pstmt.setString(1, cursor);
+		try ( PreparedStatement pstmt = authorityDB.prepareStatement("SELECT DISTINCT id FROM %s WHERE ingestId > ? AND ingestId <= ?".formatted(MADS_UPDATE_TABLE))) {
+			pstmt.setLong(1, cursor);
+			pstmt.setLong(2, highWaterMark);
 			try (ResultSet rs = pstmt.executeQuery()) {
 				while (rs.next())
 					identifiers.add(rs.getString(1));
@@ -456,13 +495,13 @@ LIMIT 1""".formatted(MADS_UPDATE_TABLE))) {
 		return identifiers;
 	}
 
-	public static String maxAddedDate(Connection authority) throws SQLException {
-		try (PreparedStatement pstmt = authority.prepareStatement("SELECT MAX(addedDate) as maxAddedDate FROM %s".formatted(MADS_UPDATE_TABLE));
+	public static long maxIngestId(Connection authority) throws SQLException {
+		try (PreparedStatement pstmt = authority.prepareStatement("SELECT COALESCE(MAX(ingestId), 0) as maxIngestId FROM %s".formatted(MADS_UPDATE_TABLE));
 			 ResultSet rs = pstmt.executeQuery()) {
-			if (rs.next()) return rs.getString(1);
+			if (rs.next()) return rs.getLong(1);
 		}
 
-		throw new SQLException("No addedDate in system!");
+		throw new SQLException("Unable to read ingestion sequence!");
 	}
 
 	protected static void noteAdd(Connection headings, Integer headingId, Integer authorityId, String note)
