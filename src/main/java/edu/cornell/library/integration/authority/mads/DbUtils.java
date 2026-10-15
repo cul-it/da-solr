@@ -168,12 +168,12 @@ CREATE TABLE IF NOT EXISTS %s (
 ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci""".formatted(HEADINGS_UPDATE_CURSOR_TABLE));
 		}
 
-		// populateStaticData(headings);
+		populateStaticData(headings);
 	}
 
 	protected static void populateStaticData( Connection headings ) throws SQLException {
 		try ( PreparedStatement insertDesc = headings.prepareStatement(
-				"INSERT INTO %s (id,name) VALUES (? , ?)".formatted(MADS_HEADING_TYPE_TABLE)) ) {
+				"REPLCACE INTO %s (id,name) VALUES (? , ?)".formatted(MADS_HEADING_TYPE_TABLE)) ) {
 		for ( HeadingType ht : HeadingType.values()) {
 			insertDesc.setInt(1, ht.ordinal());
 			insertDesc.setString(2, ht.toString());
@@ -181,7 +181,7 @@ ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci""".formatted(HE
 		}}
 
 		try ( PreparedStatement insertDesc = headings.prepareStatement(
-				"INSERT INTO %s (id,name) VALUES (? , ?)".formatted(MADS_HEADING_CATEGORY_TABLE)) ) {
+				"REPLCACE INTO %s (id,name) VALUES (? , ?)".formatted(MADS_HEADING_CATEGORY_TABLE)) ) {
 		for ( HeadingCategory hc : HeadingCategory.values()) {
 			insertDesc.setInt(1, hc.ordinal());
 			insertDesc.setString(2, hc.toString());
@@ -189,7 +189,7 @@ ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci""".formatted(HE
 		}}
 
 		try ( PreparedStatement insertRefType = headings.prepareStatement(
-				"INSERT INTO %s (id,name) VALUES (? , ?)".formatted(MADS_REFERENCE_TYPE_TABLE)) ) {
+				"REPLCACE INTO %s (id,name) VALUES (? , ?)".formatted(MADS_REFERENCE_TYPE_TABLE)) ) {
 		for ( ReferenceType rt : ReferenceType.values()) {
 			insertRefType.setInt(1, rt.ordinal());
 			insertRefType.setString(2, rt.toString());
@@ -197,7 +197,7 @@ ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci""".formatted(HE
 		}}
 
 		try ( PreparedStatement insertAuthSource = headings.prepareStatement(
-				"INSERT INTO %s (id,name) VALUES (? , ?)".formatted(MADS_AUTHORITY_SOURCE_TABLE)) ) {
+				"REPLCACE INTO %s (id,name) VALUES (? , ?)".formatted(MADS_AUTHORITY_SOURCE_TABLE)) ) {
 			for ( AuthoritySource rt : AuthoritySource.values()) {
 				insertAuthSource.setInt(1, rt.ordinal());
 				insertAuthSource.setString(2, rt.toString());
@@ -206,7 +206,20 @@ ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci""".formatted(HE
 		}
 	}
 
-	public static void setupAuthorityDatabase(Connection authority) throws SQLException {
+	public static void clearHeadingsDatabase(Connection headings) throws SQLException {
+		try ( Statement stmt = headings.createStatement() ) {
+			for (String table : Arrays.asList(MADS_HEADING_TYPE_TABLE,
+											  MADS_HEADING_CATEGORY_TABLE,
+											  MADS_REFERENCE_TYPE_TABLE,
+											  MADS_AUTHORITY_SOURCE_TABLE,
+											  MADS_AUTHORITY_TO_HEADING_TABLE,
+											  MADS_BIB_TO_HEADING_TABLE,
+											  HEADINGS_UPDATE_CURSOR_TABLE))
+				stmt.execute("DROP TABLE IF EXISTS " + table);
+		}
+	}
+
+	public static void setUpAuthorityDatabase(Connection authority) throws SQLException {
 		try ( Statement stmt = authority.createStatement() ) {
 			stmt.execute("""
 CREATE TABLE IF NOT EXISTS %s (
@@ -220,6 +233,12 @@ CREATE TABLE IF NOT EXISTS %s (
 	`occupation` mediumtext DEFAULT NULL,
 	PRIMARY KEY (`id`))
 ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci""".formatted(RWO_TABLE));
+		}
+	}
+
+	public static void clearAuthorityDatabase(Connection authority) throws SQLException {
+		try ( Statement stmt = authority.createStatement() ) {
+			stmt.execute("DROP TABLE IF EXISTS " + RWO_TABLE);
 		}
 	}
 
@@ -370,11 +389,11 @@ LIMIT 1""".formatted(MADS_UPDATE_TABLE))) {
 		return null;
 	}
 
-	public static int cursorReplace(Connection headings, String cursorName) throws SQLException {
+	public static int cursorReplace(Connection headings, String newCursor) throws SQLException {
 		try ( PreparedStatement pstmt = headings.prepareStatement(
 				"REPLACE INTO %s (cursor_name, current_to_date) VALUES (?,?)".formatted(HEADINGS_UPDATE_CURSOR_TABLE)) ) {
-			pstmt.setString(1, cursorName);
-			pstmt.setString(2, HEADINGS_CURSOR_INDEX_MADS_AUTHORITY_RECORDS);
+			pstmt.setString(1, HEADINGS_CURSOR_INDEX_MADS_AUTHORITY_RECORDS);
+			pstmt.setString(2, newCursor);
 			return pstmt.executeUpdate();
 		}
 	}

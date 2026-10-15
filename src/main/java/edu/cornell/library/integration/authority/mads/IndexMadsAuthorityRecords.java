@@ -44,7 +44,7 @@ public class IndexMadsAuthorityRecords {
 
 			if (setupDb) {
 				DbUtils.setUpHeadingsDatabase(headings);
-				DbUtils.setupAuthorityDatabase(authority);
+				DbUtils.setUpAuthorityDatabase(authority); // creates RWO table
 			}
 
 			authority.setAutoCommit(false);

@@ -50,7 +50,17 @@ public class AuthorityDataProcessingTest extends CustomDbSetupTest {
 			try {
 				Utils.setUpDatabase(conn);
 				DbUtils.setUpHeadingsDatabase(conn);
-				DbUtils.setupAuthorityDatabase(conn);
+				DbUtils.setUpAuthorityDatabase(conn);
+				return null;
+			} catch (SQLException e) {
+				throw new RuntimeException(e);
+			}
+		});
+		clearFunctions.add(conn -> {
+			try {
+				Utils.clearDatabase(conn);
+				DbUtils.clearAuthorityDatabase(conn);
+				DbUtils.clearHeadingsDatabase(conn);
 				return null;
 			} catch (SQLException e) {
 				throw new RuntimeException(e);

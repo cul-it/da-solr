@@ -165,6 +165,18 @@ CREATE TABLE IF NOT EXISTS `%s` (
 		}}
 	}
 
+	public static void clearDatabase(Connection authority) throws SQLException {
+		try ( Statement stmt = authority.createStatement() ) {
+			for (String table : Arrays.asList(
+					DbUtils.MADS_UPDATE_TABLE,
+					DbUtils.MADS_HEADING_TYPE_TABLE,
+					DbUtils.MADS_RECORD_STATUS_TABLE,
+					CURSOR_TABLE
+			))
+				stmt.execute("DROP TABLE IF EXISTS " + table);
+		}
+	}
+
 	public static String cursor(Connection heading) throws SQLException {
 		try ( PreparedStatement pstmt = heading.prepareStatement("SELECT current_to_date FROM %s WHERE cursor_name = ?".formatted(CURSOR_TABLE))) {
 			pstmt.setString(1, CURSOR_NAME);

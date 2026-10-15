@@ -46,7 +46,7 @@ public class ReferencesTest extends CustomDbSetupTest {
 			try {
 				Utils.setUpDatabase(conn);
 				DbUtils.setUpHeadingsDatabase(conn);
-				DbUtils.setupAuthorityDatabase(conn);
+				DbUtils.setUpAuthorityDatabase(conn);
 				return null;
 			} catch (SQLException e) {
 				throw new RuntimeException(e);
