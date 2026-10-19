@@ -89,7 +89,6 @@ public class IndexMadsAuthorityRecordsTest extends CustomDbSetupTest {
 
 		long cursorAfterIndexAll;
 		try (Connection conn = config.getDatabaseConnection("Headings")) {
-			System.out.println("Cursor after indexing all: " + DbUtils.cursor(conn));
 			assert DbUtils.cursor(conn) > 0;
 			cursorAfterIndexAll = DbUtils.cursor(conn);
 			/*
@@ -100,16 +99,20 @@ public class IndexMadsAuthorityRecordsTest extends CustomDbSetupTest {
 			try (var ps = conn.prepareStatement("SELECT * FROM %s ORDER BY id ASC".formatted(DbUtils.MADS_AUTHORITY_TABLE))) {
 				var rs = ps.executeQuery();
 				assert rs.next(); // gf2010025067
-				printResultSet(rs);
+				assert rs.getString("nativeHeading").equals("Gravity anomaly maps");
 				assert rs.next(); // n50000589
-				printResultSet(rs);
+				assert rs.getString("nativeHeading").equals("University of Vermont");
 			}
 			try (var ps = conn.prepareStatement("SELECT * FROM %s ORDER BY id ASC".formatted(DbUtils.MADS_HEADING_TABLE))) {
 				var rs = ps.executeQuery();
 				assert rs.next(); // Gravity anamoly maps
+				assert rs.getString("heading").equals("Gravity anomaly maps");
 				assert rs.next(); // Gravity maps
+				assert rs.getString("heading").equals("Gravity maps");
 				assert rs.next(); // Maps
+				assert rs.getString("heading").equals("Maps");
 				assert rs.next(); // University of Vermont
+				assert rs.getString("heading").equals("University of Vermont");
 			}
 		}
 
@@ -123,7 +126,6 @@ public class IndexMadsAuthorityRecordsTest extends CustomDbSetupTest {
 		IndexMadsAuthorityRecords.indexNewMadsAuthorityRecords(config);
 
 		try (Connection conn = config.getDatabaseConnection("Headings")) {
-			System.out.println("Cursor after indexing new: " + DbUtils.cursor(conn));
 			assert DbUtils.cursor(conn) > cursorAfterIndexAll;
 			/*
 				After indexing the new record, the cursor should reflect the updated ingestId, which is 3.
@@ -154,7 +156,6 @@ public class IndexMadsAuthorityRecordsTest extends CustomDbSetupTest {
 		}
 		IndexMadsAuthorityRecords.indexNewMadsAuthorityRecords(config);
 		try (Connection conn = config.getDatabaseConnection("Headings")) {
-			System.out.println("Cursor after indexing new: " + DbUtils.cursor(conn));
 			assert DbUtils.cursor(conn) > cursorAfterIndexAll;
 			/*
 				After indexing the updated record, the cursor should reflect the updated ingestId, which is 4.
@@ -162,7 +163,6 @@ public class IndexMadsAuthorityRecordsTest extends CustomDbSetupTest {
 				The heading table should still contain the original "Gravity anomaly maps" entry.
 			 */
 			assert DbUtils.cursor(conn) == 4;
-			System.out.println("Cursor: " + DbUtils.cursor(conn));
 			// Verify that the new record corresponds to sh97007140
 			try (var ps = conn.prepareStatement("SELECT * FROM %s ORDER BY id ASC".formatted(DbUtils.MADS_AUTHORITY_TABLE))) {
 				var rs = ps.executeQuery();
