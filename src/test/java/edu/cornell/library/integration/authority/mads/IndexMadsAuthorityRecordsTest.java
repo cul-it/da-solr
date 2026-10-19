@@ -3,12 +3,13 @@ package edu.cornell.library.integration.authority.mads;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import edu.cornell.library.integration.authority.activitystreams.IFetcher;
@@ -35,8 +36,8 @@ public class IndexMadsAuthorityRecordsTest extends CustomDbSetupTest {
 		sh2010004770 - 
 	 */
 
-	@BeforeEach
-	public void setup_test() throws Exception {
+	@BeforeAll
+	public static void setup_test() throws Exception {
 		String base = rootPath.toString();
 		sqliteExtraSql = Path.of(base, "authority_extra_sqlite_create.sql").toString();
 		clearFunctions.add(conn -> {
@@ -59,34 +60,30 @@ public class IndexMadsAuthorityRecordsTest extends CustomDbSetupTest {
 				throw new RuntimeException(e);
 			}
 		});
-		Path extraInit = Path.of(base, "authority_extra_insert.sql");
-		extraInsertSqls = Files.readAllLines(extraInit);
+		// Insertion will happen during the test itself
+		// Path extraInit = Path.of(base, "authority_extra_insert.sql");
+		// extraInsertSqls = Files.readAllLines(extraInit);
 		custom_setup();
 
 		// DbUtils.fetcher = new IFetcher.FileFetcher(rootPath);
-		FileFetcher fileFetcher;
-            fileFetcher = new IFetcher.FileFetcher(rootPath);
+		// Use TestFetcher while creating new tests to download missing files from LC
+		FileFetcher fileFetcher = new IFetcher.FileFetcher(rootPath);
 		HttpFetcher httpFetcher = new IFetcher.HttpFetcher();
 		DbUtils.fetcher = new IFetcher.TestFetcher(httpFetcher, fileFetcher);
 	}
 
 	@Test
 	public void testIndexMadsAuthorityRecords() throws Exception {
+		String base = rootPath.toString();
+		Path extraInit = Path.of(base, "authority_extra_insert.sql");
+		List<String> sqls = Files.readAllLines(extraInit);
 		/*
 			Index two records - http://id.loc.gov/authorities/genreForms/gf2010025067, http://id.loc.gov/authorities/names/n50000589
 			Remove all other records from the update table
 		*/
-		List<String> ids = Arrays.asList("http://id.loc.gov/authorities/genreForms/gf2010025067", "http://id.loc.gov/authorities/names/n50000589");
 		try (Connection conn = config.getDatabaseConnection("Headings")) {
-			try (PreparedStatement pstmt = conn.prepareStatement("SELECT id, ingestId FROM " + DbUtils.MADS_UPDATE_TABLE)) {
-				try (var rs = pstmt.executeQuery()) {
-					while (rs.next()) {
-						System.out.println("ID: " + rs.getString("id") + ", Ingest ID: " + rs.getString("ingestId"));
-					}
-				}
-			}
-			String sql = "DELETE FROM " + DbUtils.MADS_UPDATE_TABLE + " WHERE id not in ('" + String.join("','", ids) + "')";
-			conn.createStatement().executeUpdate(sql);
+			List<String> partial = Arrays.asList(sqls.get(0), sqls.get(9));
+			DbBaseTest.executeStmt(partial, conn);
 		}
 		IndexMadsAuthorityRecords.indexAllMadsAuthorityRecords(config, false);
 
@@ -96,10 +93,25 @@ public class IndexMadsAuthorityRecordsTest extends CustomDbSetupTest {
 			assert DbUtils.cursor(conn) > 0;
 			cursorAfterIndexAll = DbUtils.cursor(conn);
 			/*
-				gf2010025067 is the first row and n50000589 is the 10th row.
-				In this test, we removed all other rows and expect the cursor to reflect only the remaining rows.
+				gf2010025067 is the first row and n50000589 is the 2nd row.
 			 */
-			assert cursorAfterIndexAll == 10;
+			assert cursorAfterIndexAll == 2;
+			// Verify that the first row corresponds to gf2010025067 and the second row corresponds to n50000589
+			assert cursorAfterIndexAll == 2;
+			try (var ps = conn.prepareStatement("SELECT * FROM %s ORDER BY id ASC".formatted(DbUtils.MADS_AUTHORITY_TABLE))) {
+				var rs = ps.executeQuery();
+				assert rs.next(); // gf2010025067
+				printResultSet(rs);
+				assert rs.next(); // n50000589
+				printResultSet(rs);
+			}
+			try (var ps = conn.prepareStatement("SELECT * FROM %s ORDER BY id ASC".formatted(DbUtils.MADS_HEADING_TABLE))) {
+				var rs = ps.executeQuery();
+				assert rs.next(); // Gravity anamoly maps
+				assert rs.next(); // Gravity maps
+				assert rs.next(); // Maps
+				assert rs.next(); // University of Vermont
+			}
 		}
 
 		/*
@@ -107,7 +119,7 @@ public class IndexMadsAuthorityRecordsTest extends CustomDbSetupTest {
 			Add last element from the extraInsertSqls
 		 */
 		try (Connection conn = config.getDatabaseConnection("Headings")) {
-			DbBaseTest.executeStmt(Arrays.asList(extraInsertSqls.get(extraInsertSqls.size() - 1)), conn);
+			DbBaseTest.executeStmt(Arrays.asList(sqls.get(sqls.size() - 1)), conn);
 		}
 		IndexMadsAuthorityRecords.indexNewMadsAuthorityRecords(config);
 
@@ -115,11 +127,44 @@ public class IndexMadsAuthorityRecordsTest extends CustomDbSetupTest {
 			System.out.println("Cursor after indexing new: " + DbUtils.cursor(conn));
 			assert DbUtils.cursor(conn) > cursorAfterIndexAll;
 			/*
-				Before we deleted all the rows, there were 34 rows in the table.
-				We added the last row again which increases the DbUtils.MADS_UPDATE_TABLE.ingestId by one - 35.
-				After indexing the new record, the cursor should reflect the updated ingestId, which is 35.
+				After indexing the new record, the cursor should reflect the updated ingestId, which is 3.
 			 */
-			assert DbUtils.cursor(conn) == 35;
+			assert DbUtils.cursor(conn) == 3;
+			// Verify that the new record corresponds to sh97007140
+			try (var ps = conn.prepareStatement("SELECT * FROM %s ORDER BY id ASC".formatted(DbUtils.MADS_HEADING_TABLE))) {
+				var rs = ps.executeQuery();
+				assert rs.next();
+				assert rs.getString("heading").equals("Gravity anomaly maps");
+				assert rs.next();
+				assert rs.getString("heading").equals("Gravity maps");
+				assert rs.next();
+				assert rs.getString("heading").equals("Maps");
+				assert rs.next();
+				assert rs.getString("heading").equals("University of Vermont");
+				assert rs.next();
+				assert rs.getString("heading").equals("Judeo-Tat language");
+			}
 		}
 	}
+
+    public static void printResultSet(ResultSet rs) throws SQLException {
+        // 1. Get metadata to discover the structure dynamically
+        ResultSetMetaData rsmd = rs.getMetaData();
+        int columnCount = rsmd.getColumnCount();
+
+        for (int i = 1; i <= columnCount; i++) {
+			String columnName = rsmd.getColumnName(i);
+			// getObject handles any data type safely
+			Object columnValue = rs.getObject(i); 
+
+			System.out.print(columnName + ": " + columnValue);
+			
+			// Add a separator between columns
+			if (i < columnCount) {
+				System.out.print(" | ");
+			}
+		}
+		// Newline after each row
+		System.out.println(); 
+    }
 }

@@ -54,8 +54,10 @@ public class IndexMadsAuthorityRecords {
 
 			headings.setAutoCommit(false);
 			for (String identifier : identifiers) {
-				processIdentifier(authority, headings, identifier);
-				headings.commit();
+				if (processIdentifier(authority, headings, identifier))
+					headings.commit();
+				else
+					headings.rollback();
 			}
 
 			DbUtils.cursorReplace(headings, highWaterMark);
@@ -69,7 +71,7 @@ public class IndexMadsAuthorityRecords {
 		config.setDatabasePoolsize("Headings", 2);
 		try ( Connection authority = config.getDatabaseConnection("Authority");
 			  Connection headings = config.getDatabaseConnection("Headings") ) {
-			long cursor = DbUtils.cursor(headings, authority);
+			long cursor = DbUtils.cursor(headings);
 
 			authority.setAutoCommit(false);
 			long highWaterMark = DbUtils.maxIngestId(authority);

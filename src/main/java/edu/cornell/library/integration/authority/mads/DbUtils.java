@@ -178,16 +178,6 @@ CREATE TABLE IF NOT EXISTS %s (
 		populateStaticData(headings);
 	}
 
-// 	public static void ensureMadsIngestCursorTable(Connection headings) throws SQLException {
-// 		try (Statement stmt = headings.createStatement()) {
-// 			stmt.execute("""
-// CREATE TABLE IF NOT EXISTS %s (
-// 	`cursor_name` VARCHAR(40) NOT NULL,
-// 	`current_ingest_id` BIGINT NOT NULL DEFAULT 0,
-// 	PRIMARY KEY (`cursor_name`))""".formatted(MADS_INGEST_CURSOR_TABLE));
-// 		}
-// 	}
-
 	protected static void populateStaticData( Connection headings ) throws SQLException {
 		try ( PreparedStatement insertDesc = headings.prepareStatement(
 				"REPLCACE INTO %s (id,name) VALUES (? , ?)".formatted(MADS_HEADING_TYPE_TABLE)) ) {
@@ -350,12 +340,8 @@ ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci""".formatted(RW
 	}
 
 	public static AuthorityData authorityRecord(Connection authority, String identifier) throws SQLException, JsonLdError, IOException, URISyntaxException {
-		try (PreparedStatement stmt = authority.prepareStatement("""
-SELECT *
-FROM %s
-WHERE id = ?
-ORDER BY ingestId DESC
-LIMIT 1""".formatted(MADS_UPDATE_TABLE))) {
+		String query = "SELECT * FROM %s WHERE id = ? ORDER BY ingestId DESC LIMIT 1".formatted(MADS_UPDATE_TABLE);
+		try (PreparedStatement stmt = authority.prepareStatement(query)) {
 			stmt.setString(1, identifier);
 			try (ResultSet rs = stmt.executeQuery()) {
 				while (rs.next()) return AuthorityData.fromDbRecord(rs);
@@ -395,6 +381,7 @@ LIMIT 1""".formatted(MADS_UPDATE_TABLE))) {
 		return headings.prepareStatement("SELECT reference_id FROM %s WHERE reference_id = ?".formatted(MADS_AUTHORITY_TO_REFERENCE_TABLE));
 	}
 
+	/** Returns the last committed ingestion sequence, or zero when no sequence cursor exists. */
 	public static long cursor(Connection headings) throws SQLException {
 		try ( PreparedStatement pstmt = headings.prepareStatement(
 				"SELECT current_ingest_id FROM %s WHERE cursor_name = ?".formatted(MADS_INGEST_CURSOR_TABLE)) ) {
@@ -405,26 +392,6 @@ LIMIT 1""".formatted(MADS_UPDATE_TABLE))) {
 		}
 
 		return 0;
-	}
-
-	public static long cursor(Connection headings, Connection authority) throws SQLException {
-		long ingestCursor = cursor(headings);
-		if (ingestCursor > 0) return ingestCursor;
-
-		try (PreparedStatement pstmt = headings.prepareStatement(
-				"SELECT current_to_date FROM %s WHERE cursor_name = ?".formatted(HEADINGS_UPDATE_CURSOR_TABLE))) {
-			pstmt.setString(1, HEADINGS_CURSOR_INDEX_MADS_AUTHORITY_RECORDS);
-			try (ResultSet rs = pstmt.executeQuery()) {
-				if (!rs.next() || rs.getString(1) == null) return ingestCursor;
-				try (PreparedStatement sequenceStmt = authority.prepareStatement(
-						"SELECT COALESCE(MIN(ingestId) - 1, (SELECT COALESCE(MAX(ingestId), 0) FROM %s)) FROM %s WHERE addedDate >= ?".formatted(MADS_UPDATE_TABLE, MADS_UPDATE_TABLE))) {
-					sequenceStmt.setString(1, rs.getString(1));
-					try (ResultSet sequenceRs = sequenceStmt.executeQuery()) {
-						return sequenceRs.next() ? sequenceRs.getLong(1) : 0;
-					}
-				}
-			}
-		}
 	}
 
 	public static int cursorReplace(Connection headings, long newCursor) throws SQLException {
