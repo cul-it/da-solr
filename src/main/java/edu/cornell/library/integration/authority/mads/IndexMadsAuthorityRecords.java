@@ -15,7 +15,6 @@ import java.util.Set;
 import com.apicatalog.jsonld.JsonLdError;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import edu.cornell.library.integration.metadata.support.AuthorityData.AuthoritySource;
 import edu.cornell.library.integration.metadata.support.AuthorityData.ReferenceType;
 import edu.cornell.library.integration.utilities.Config;
 

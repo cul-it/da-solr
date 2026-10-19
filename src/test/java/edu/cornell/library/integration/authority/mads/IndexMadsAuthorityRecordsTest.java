@@ -97,7 +97,6 @@ public class IndexMadsAuthorityRecordsTest extends CustomDbSetupTest {
 			 */
 			assert cursorAfterIndexAll == 2;
 			// Verify that the first row corresponds to gf2010025067 and the second row corresponds to n50000589
-			assert cursorAfterIndexAll == 2;
 			try (var ps = conn.prepareStatement("SELECT * FROM %s ORDER BY id ASC".formatted(DbUtils.MADS_AUTHORITY_TABLE))) {
 				var rs = ps.executeQuery();
 				assert rs.next(); // gf2010025067
@@ -143,6 +142,81 @@ public class IndexMadsAuthorityRecordsTest extends CustomDbSetupTest {
 				assert rs.getString("heading").equals("University of Vermont");
 				assert rs.next();
 				assert rs.getString("heading").equals("Judeo-Tat language");
+			}
+		}
+
+		/*
+			Update record - http://id.loc.gov/authorities/genreForms/gf2010025067
+		 */
+		try (Connection conn = config.getDatabaseConnection("Headings")) {
+			String updated = sqls.get(0).replace("Gravity anomaly maps", "Gravity anomaly maps X");
+			DbBaseTest.executeStmt(Arrays.asList(updated), conn);
+		}
+		IndexMadsAuthorityRecords.indexNewMadsAuthorityRecords(config);
+		try (Connection conn = config.getDatabaseConnection("Headings")) {
+			System.out.println("Cursor after indexing new: " + DbUtils.cursor(conn));
+			assert DbUtils.cursor(conn) > cursorAfterIndexAll;
+			/*
+				After indexing the updated record, the cursor should reflect the updated ingestId, which is 4.
+				Gravity anomaly maps should be removed from authority table and Gravity anomaly maps X should be added.
+				The heading table should still contain the original "Gravity anomaly maps" entry.
+			 */
+			assert DbUtils.cursor(conn) == 4;
+			System.out.println("Cursor: " + DbUtils.cursor(conn));
+			// Verify that the new record corresponds to sh97007140
+			try (var ps = conn.prepareStatement("SELECT * FROM %s ORDER BY id ASC".formatted(DbUtils.MADS_AUTHORITY_TABLE))) {
+				var rs = ps.executeQuery();
+				assert rs.next();
+				assert rs.getString("nativeHeading").equals("University of Vermont");
+				assert rs.next();
+				assert rs.getString("nativeHeading").equals("Judeo-Tat language");
+				assert rs.next();
+				assert rs.getString("nativeHeading").equals("Gravity anomaly maps X");
+				assert !rs.next();
+			}
+			try (var ps = conn.prepareStatement("SELECT * FROM %s ORDER BY id ASC".formatted(DbUtils.MADS_HEADING_TABLE))) {
+				var rs = ps.executeQuery();
+				assert rs.next();
+				assert rs.getString("heading").equals("Gravity anomaly maps");
+				assert rs.next();
+				assert rs.getString("heading").equals("Gravity maps");
+				assert rs.next();
+				assert rs.getString("heading").equals("Maps");
+				assert rs.next();
+				assert rs.getString("heading").equals("University of Vermont");
+				assert rs.next();
+				assert rs.getString("heading").equals("Judeo-Tat language");
+				assert rs.next();
+				assert rs.getString("heading").equals("Bik language");
+				assert rs.next();
+				assert rs.getString("heading").equals("Dzhuhuric language");
+				assert rs.next();
+				assert rs.getString("heading").equals("Hebrew Tat language");
+				assert rs.next();
+				assert rs.getString("heading").equals("Hebrew Tati language");
+				assert rs.next();
+				assert rs.getString("heading").equals("Jew-Tatish language");
+				assert rs.next();
+				assert rs.getString("heading").equals("Jewish Tat language");
+				assert rs.next();
+				assert rs.getString("heading").equals("Judeo-Tatic language");
+				assert rs.next();
+				assert rs.getString("heading").equals("Juhur language");
+				assert rs.next();
+				assert rs.getString("heading").equals("Juhuri language");
+				assert rs.next();
+				assert rs.getString("heading").equals("Juwri language");
+				assert rs.next();
+				assert rs.getString("heading").equals("Lahji language");
+				assert rs.next();
+				assert rs.getString("heading").equals("Mountain Jewish language");
+				assert rs.next();
+				assert rs.getString("heading").equals("Tat language");
+				assert rs.next();
+				assert rs.getString("heading").equals("Russia (Federation) > Languages");
+				assert rs.next();
+				assert rs.getString("heading").equals("Gravity anomaly maps X");
+				assert !rs.next();
 			}
 		}
 	}

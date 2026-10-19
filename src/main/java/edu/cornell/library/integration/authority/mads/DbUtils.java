@@ -16,7 +16,6 @@ import java.util.TreeSet;
 import com.apicatalog.jsonld.JsonLdError;
 
 import edu.cornell.library.integration.authority.activitystreams.IFetcher;
-import edu.cornell.library.integration.metadata.support.AuthorityData.AuthoritySource;
 import edu.cornell.library.integration.metadata.support.AuthorityData.ReferenceType;
 import edu.cornell.library.integration.metadata.support.HeadingCategory;
 
