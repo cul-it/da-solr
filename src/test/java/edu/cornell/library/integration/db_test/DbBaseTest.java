@@ -67,14 +67,14 @@ public class DbBaseTest {
 		}
 	}
 
-	public static void runStmt(List<String> sqls, Connection conn) throws SQLException, UnsupportedEncodingException, FileNotFoundException, IOException {
-		for (String sql : sqls) {
+	public static void runSqlFiles(List<String> sqlFiles, Connection conn) throws SQLException, UnsupportedEncodingException, FileNotFoundException, IOException {
+		for (String sqlFile : sqlFiles) {
 			try (Statement stmt = conn.createStatement();
-				BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sql),"UTF-8"))) {
-				String line;
-				while ((line = br.readLine()) != null) {
-					if (StringUtils.isBlank(line) || line.startsWith("--")) continue;
-					stmt.executeUpdate(line);
+				BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sqlFile),"UTF-8"))) {
+				String sql;
+				while ((sql = br.readLine()) != null) {
+					if (StringUtils.isBlank(sql) || sql.startsWith("--")) continue;
+					stmt.executeUpdate(sql);
 				}
 			}
 		}

@@ -58,7 +58,7 @@ public class SqliteBaseTest {
 			sourceInitDb = new File(INIT_DB_PATH);
 			sourceInitDb.deleteOnExit();
 			try (Connection conn = DriverManager.getConnection("jdbc:sqlite:"+sourceInitDb.getAbsolutePath())) {
-				DbBaseTest.runStmt(sqls, conn);
+				DbBaseTest.runSqlFiles(sqls, conn);
 			}
 		}
 	}

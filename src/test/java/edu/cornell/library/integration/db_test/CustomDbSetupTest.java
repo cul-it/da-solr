@@ -35,7 +35,7 @@ public class CustomDbSetupTest extends DbBaseTest {
 			} else if (useSqlite != null) {
 				// String extraSqlite = Path.of(base, "authority_extra_sqlite_create.sql").toString();
 				String sql = new File(sqliteExtraSql).getAbsolutePath();
-				DbBaseTest.runStmt(Arrays.asList(sql), conn);
+				DbBaseTest.runSqlFiles(Arrays.asList(sql), conn);
 			}
 			for (String extraSql : extraInsertSqls)
 				DbBaseTest.executeStmt(Arrays.asList(extraSql), conn);
