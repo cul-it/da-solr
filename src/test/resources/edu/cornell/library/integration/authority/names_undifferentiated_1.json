@@ -1,0 +1,177 @@
+{
+	"@context": "http://id.loc.gov/authorities/names/context.json",
+	"@graph": [
+		{
+			"@id": "http://id.loc.gov/rwo/agents/n79027910",
+			"@type": [
+				"bf:Person",
+				"madsrdf:RWO",
+				"http://xmlns.com/foaf/0.1/Person"
+			],
+			"madsrdf:isIdentifiedByAuthority": {
+				"@id": "http://id.loc.gov/authorities/names/n79027910"
+			},
+			"rdfs:label": "Mason, Jack"
+		},
+		{
+			"@id": "http://id.loc.gov/authorities/names/n79027910",
+			"@type": [
+				"madsrdf:Authority",
+				"madsrdf:PersonalName"
+			],
+			"bflc:marcKey": "1001 $aMason, Jack",
+			"identifiers:lccn": "n 79027910",
+			"madsrdf:adminMetadata": [
+				{
+					"@id": "_:n07157644ce9247a5823ca5e553703b00b1"
+				},
+				{
+					"@id": "_:n07157644ce9247a5823ca5e553703b00b2"
+				}
+			],
+			"madsrdf:authoritativeLabel": "Mason, Jack",
+			"madsrdf:editorialNote": "[THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS UNDIFFERENTIATED RECORD HAS BEEN HANDLED FOLLOWING THE GUIDELINES IN DCM Z1 008/32]",
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:n07157644ce9247a5823ca5e553703b00b3"
+					}
+				]
+			},
+			"madsrdf:hasExactExternalAuthority": {
+				"@id": "http://viaf.org/en/viaf/LC%7Cn%20%2079027910"
+			},
+			"madsrdf:hasSource": [
+				{
+					"@id": "_:n07157644ce9247a5823ca5e553703b00b5"
+				},
+				{
+					"@id": "_:n07157644ce9247a5823ca5e553703b00b6"
+				},
+				{
+					"@id": "_:n07157644ce9247a5823ca5e553703b00b7"
+				},
+				{
+					"@id": "_:n07157644ce9247a5823ca5e553703b00b8"
+				},
+				{
+					"@id": "_:n07157644ce9247a5823ca5e553703b00b9"
+				},
+				{
+					"@id": "_:n07157644ce9247a5823ca5e553703b00b10"
+				},
+				{
+					"@id": "_:n07157644ce9247a5823ca5e553703b00b11"
+				},
+				{
+					"@id": "_:n07157644ce9247a5823ca5e553703b00b12"
+				}
+			],
+			"madsrdf:identifiesRWO": {
+				"@id": "http://id.loc.gov/rwo/agents/n79027910"
+			},
+			"madsrdf:isMemberOfMADSCollection": [
+				{
+					"@id": "http://id.loc.gov/authorities/names/collection_LCNAF"
+				},
+				{
+					"@id": "http://id.loc.gov/authorities/names/collection_NamesAuthorizedHeadings"
+				},
+				{
+					"@id": "http://id.loc.gov/authorities/names/collection_NamesUndifferentiated"
+				}
+			],
+			"madsrdf:isMemberOfMADSScheme": {
+				"@id": "http://id.loc.gov/authorities/names"
+			}
+		},
+		{
+			"@id": "_:n07157644ce9247a5823ca5e553703b00b1",
+			"@type": "ri:RecordInfo",
+			"ri:languageOfCataloging": {
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			},
+			"ri:recordChangeDate": {
+				"@type": "xsd:dateTime",
+				"@value": "1979-03-23T00:00:00"
+			},
+			"ri:recordContentSource": {
+				"@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+			},
+			"ri:recordStatus": "new"
+		},
+		{
+			"@id": "_:n07157644ce9247a5823ca5e553703b00b2",
+			"@type": "ri:RecordInfo",
+			"ri:languageOfCataloging": {
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			},
+			"ri:recordChangeDate": {
+				"@type": "xsd:dateTime",
+				"@value": "2025-08-05T00:31:32"
+			},
+			"ri:recordContentSource": {
+				"@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+			},
+			"ri:recordStatus": "revised"
+		},
+		{
+			"@id": "_:n07157644ce9247a5823ca5e553703b00b3",
+			"@type": "madsrdf:FullNameElement",
+			"madsrdf:elementValue": "Mason, Jack"
+		},
+		{
+			"@id": "_:n07157644ce9247a5823ca5e553703b00b5",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationNote": "(Jack Mason; Male; Director, Performer, Choreographer)",
+			"madsrdf:citationSource": "Internet Broadway database, Nov. 14, 2011",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:n07157644ce9247a5823ca5e553703b00b6",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationNote": "DLC copy theater program, Liberty Theatre, New York City performance (dances by Jack Mason)",
+			"madsrdf:citationSource": "The fascinating widow, 1911",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:n07157644ce9247a5823ca5e553703b00b7",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationSource": "[Collaborator on The demand for higher education in Michigan]",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:n07157644ce9247a5823ca5e553703b00b8",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationNote": "t.p. (Jack Mason) p. 7 (programmer and assistant on several modeling projects)",
+			"madsrdf:citationSource": "Moor, J. R. The demand for higher ed. in Mich., c1979 (a.e.)",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:n07157644ce9247a5823ca5e553703b00b9",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationSource": "[Choreographer for The fascinating widow]",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:n07157644ce9247a5823ca5e553703b00b10",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationSource": "[Joint author of Malice in wonderland]",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:n07157644ce9247a5823ca5e553703b00b11",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationNote": "t.p. (Jack Mason)",
+			"madsrdf:citationSource": "Norton, D. Malice in wonderland, c1932 (a.e.)",
+			"madsrdf:citationStatus": "found"
+		},
+		{
+			"@id": "_:n07157644ce9247a5823ca5e553703b00b12",
+			"@type": "madsrdf:Source",
+			"madsrdf:citationSource": "AMWS 1977;WW computers c1971;Nat. fac. direct., 1979;Contemp. authors v. 1-72.",
+			"madsrdf:citationStatus": "notfound"
+		}
+	],
+	"@id": "/authorities/names/n79027910"
+}

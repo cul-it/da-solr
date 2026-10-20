@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-enum AuthoritySource {
+public enum AuthoritySource {
 	LC, NAF, LCSH, LCGFT, LCJSH, FAST, OTHER, UNK;
 
 	private static Map<Integer,AuthoritySource> _byOrdinal =

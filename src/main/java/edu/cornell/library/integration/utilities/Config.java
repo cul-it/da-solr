@@ -37,9 +37,7 @@ public class Config {
 
 	public static List<String> getRequiredArgsForDB(String db) {
 		List<String> list = new ArrayList<>();
-		if (db == null)
-			return null;
-		if (db.isEmpty())
+		if (db == null || db.isEmpty())
 			return null;
 		list.add("databaseURL" + db);
 		list.add("databaseUser" + db);
@@ -281,7 +279,7 @@ public class Config {
 			if (!this.databases.containsKey(id)) {
 				ComboPooledDataSource cpds = new ComboPooledDataSource();
 				cpds.setJdbcUrl(url);
-//		    	cpds.setJdbcUrl( url + "?useUnicode=true&characterEncoding=UTF-8" );
+//				cpds.setJdbcUrl( url + "?useUnicode=true&characterEncoding=UTF-8" );
 				cpds.setUser(user);
 				cpds.setPassword(pass);
 				cpds.setMaxStatements(maxStatements);
@@ -300,7 +298,7 @@ public class Config {
 			Connection c = this.databases.get(id).getConnection();
 			if (url != null && url.contains("mysql")) {
 				try (Statement stmt = c.createStatement()) {
-					stmt.executeUpdate("SET NAMES utf8");
+					stmt.executeUpdate("SET NAMES utf8mb4");
 				}
 			}
 			return c;
@@ -309,7 +307,7 @@ public class Config {
 		Connection c = DriverManager.getConnection(url, user, pass);
 		if (url != null && url.contains("mysql")) {
 			try (Statement stmt = c.createStatement()) {
-				stmt.executeUpdate("SET NAMES utf8");
+				stmt.executeUpdate("SET NAMES utf8mb4");
 			}
 		}
 		return c;

@@ -1,0 +1,81 @@
+{
+	"@context": "http://id.loc.gov/authorities/names/context.json",
+	"@graph": [
+		{
+			"@id": "http://id.loc.gov/authorities/names/n00097042",
+			"@type": [
+				"madsrdf:DeprecatedAuthority",
+				"madsrdf:PersonalName",
+				"madsrdf:Variant"
+			],
+			"madsrdf:adminMetadata": [
+				{
+					"@id": "_:n1a3ca8c148274ca1b7401de871eb5fd5b1"
+				},
+				{
+					"@id": "_:n1a3ca8c148274ca1b7401de871eb5fd5b2"
+				}
+			],
+			"madsrdf:editorialNote": "[Last identity on undifferentiated record; reported for deletion, new record required; Mimosa, Sebastian's pride and Recollections of an Irish born doctor, moved to nb2021002079]",
+			"madsrdf:elementList": {
+				"@list": [
+					{
+						"@id": "_:n1a3ca8c148274ca1b7401de871eb5fd5b3"
+					}
+				]
+			},
+			"madsrdf:identifiesRWO": {
+				"@id": "http://id.loc.gov/rwo/agents/n00097042"
+			},
+			"madsrdf:variantLabel": "Wilkinson, Susan"
+		},
+		{
+			"@id": "_:n1a3ca8c148274ca1b7401de871eb5fd5b1",
+			"@type": "ri:RecordInfo",
+			"ri:languageOfCataloging": {
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			},
+			"ri:recordChangeDate": {
+				"@type": "xsd:dateTime",
+				"@value": "2021-04-22T14:52:22"
+			},
+			"ri:recordContentSource": {
+				"@id": "http://id.loc.gov/vocabulary/organizations/uk"
+			},
+			"ri:recordStatus": "deprecated"
+		},
+		{
+			"@id": "_:n1a3ca8c148274ca1b7401de871eb5fd5b2",
+			"@type": "ri:RecordInfo",
+			"ri:languageOfCataloging": {
+				"@id": "http://id.loc.gov/vocabulary/iso639-2/eng"
+			},
+			"ri:recordChangeDate": {
+				"@type": "xsd:dateTime",
+				"@value": "2000-07-10T00:00:00"
+			},
+			"ri:recordContentSource": {
+				"@id": "http://id.loc.gov/vocabulary/organizations/dlc"
+			},
+			"ri:recordStatus": "new"
+		},
+		{
+			"@id": "_:n1a3ca8c148274ca1b7401de871eb5fd5b3",
+			"@type": "madsrdf:FullNameElement",
+			"madsrdf:elementValue": "Wilkinson, Susan"
+		},
+		{
+			"@id": "http://id.loc.gov/rwo/agents/n00097042",
+			"@type": [
+				"bf:Person",
+				"madsrdf:RWO",
+				"http://xmlns.com/foaf/0.1/Person"
+			],
+			"madsrdf:isIdentifiedByAuthority": {
+				"@id": "http://id.loc.gov/authorities/names/n00097042"
+			},
+			"rdfs:label": "Wilkinson, Susan"
+		}
+	],
+	"@id": "/authorities/names/n00097042"
+}

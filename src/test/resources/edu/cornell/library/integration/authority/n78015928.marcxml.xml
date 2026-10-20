@@ -1,0 +1,31 @@
+<marcxml:record xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:marcxml="http://www.loc.gov/MARC21/slim">
+  <marcxml:leader>00464cz  a2200145n  4500</marcxml:leader>
+  <marcxml:controlfield tag="001">n78015928</marcxml:controlfield>
+  <marcxml:controlfield tag="003">DLC</marcxml:controlfield>
+  <marcxml:controlfield tag="005">20250804220412.7</marcxml:controlfield>
+  <marcxml:controlfield tag="008">780403n| aaannaab           |b aaa      </marcxml:controlfield>
+  <marcxml:datafield tag="010" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">n  78015928 </marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="040" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">DLC</marcxml:subfield>
+    <marcxml:subfield code="b">eng</marcxml:subfield>
+    <marcxml:subfield code="c">DLC</marcxml:subfield>
+    <marcxml:subfield code="d">DLC</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="100" ind1="1" ind2=" ">
+    <marcxml:subfield code="a">Krause, Ken.</marcxml:subfield>
+    <marcxml:subfield code="t">Hey, God! hurry!</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="500" ind1="1" ind2=" ">
+    <marcxml:subfield code="w">f</marcxml:subfield>
+    <marcxml:subfield code="a">Gibson, Roxie E.</marcxml:subfield>
+    <marcxml:subfield code="t">Hey, God! hurry!</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="667" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">THIS 1XX FIELD CANNOT BE USED UNDER RDA UNTIL THIS RECORD HAS BEEN REVIEWED AND/OR UPDATED</marcxml:subfield>
+  </marcxml:datafield>
+  <marcxml:datafield tag="670" ind1=" " ind2=" ">
+    <marcxml:subfield code="a">His Hey, God! hurry! 1977.</marcxml:subfield>
+  </marcxml:datafield>
+</marcxml:record>

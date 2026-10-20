@@ -1,0 +1,37 @@
+<marcxml:record xmlns:mets="http://www.loc.gov/METS/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:marcxml="http://www.loc.gov/MARC21/slim">
+<marcxml:leader>00682cz a2200157n 4500</marcxml:leader>
+<marcxml:controlfield tag="001">n00002659</marcxml:controlfield>
+<marcxml:controlfield tag="003">DLC</marcxml:controlfield>
+<marcxml:controlfield tag="005">20250805023659.2</marcxml:controlfield>
+<marcxml:controlfield tag="008">000302n| azannaabn |a aaa </marcxml:controlfield>
+<marcxml:datafield tag="010" ind1=" " ind2=" ">
+<marcxml:subfield code="a">n 00002659 </marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="040" ind1=" " ind2=" ">
+<marcxml:subfield code="a">DLC</marcxml:subfield>
+<marcxml:subfield code="b">eng</marcxml:subfield>
+<marcxml:subfield code="e">rda</marcxml:subfield>
+<marcxml:subfield code="c">DLC</marcxml:subfield>
+<marcxml:subfield code="d">DLC</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="100" ind1="1" ind2=" ">
+<marcxml:subfield code="a">Rhine, Richard</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="500" ind1="1" ind2=" ">
+<marcxml:subfield code="w">nnnc</marcxml:subfield>
+<marcxml:subfield code="a">Silverstein, Alvin</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="500" ind1="1" ind2=" ">
+<marcxml:subfield code="w">nnnc</marcxml:subfield>
+<marcxml:subfield code="a">Silverstein, Virginia B.</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="663" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Joint pseudonym of Alvin Silverstein and Virginia Silverstein. For works of these authors written under their own names, search also under:</marcxml:subfield>
+<marcxml:subfield code="b">Silverstein, Alvin and</marcxml:subfield>
+<marcxml:subfield code="b">Silverstein, Virginia B.</marcxml:subfield>
+</marcxml:datafield>
+<marcxml:datafield tag="670" ind1=" " ind2=" ">
+<marcxml:subfield code="a">Life in a bucket of soil, 2000:</marcxml:subfield>
+<marcxml:subfield code="b">t.p. verso (pseudonym "Richard Rhine" used by Alvin Silverstein and Virginia Silverstein)</marcxml:subfield>
+</marcxml:datafield>
+</marcxml:record>
