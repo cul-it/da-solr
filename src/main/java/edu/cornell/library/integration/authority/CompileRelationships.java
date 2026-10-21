@@ -127,6 +127,8 @@ public class CompileRelationships {
 						}
 					}
 					if (w == null && i == null) continue;
+					if (i == null && w != null && w.equals("g")) continue;
+
 					List<String>  wLabel = getWDescription(w);
 					if (! mhSearched ) {
 						mhSearch = querySolrForMatchingBibCount(
@@ -175,6 +177,7 @@ public class CompileRelationships {
 
 	private static String getSolrSearchField(String fieldTag) {
 		HeadingType ht = HeadingType.byAuthField("1"+fieldTag.substring(1, 3));
+		if (ht == null) return null;
 		switch (ht) {
 		case PERS: return "subject_pers_browse";
 		case CORP: return "subject_corp_browse";
