@@ -302,7 +302,7 @@ ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_unicode_ci""".formatted(RW
 		try ( PreparedStatement pstmt = headings.prepareStatement(
 				"INSERT INTO %s (source,nativeId,nativeHeading,localId,undifferentiated) VALUES (?,?,?,?,?)".formatted(MADS_AUTHORITY_TABLE),
 				Statement.RETURN_GENERATED_KEYS) ) {
-			pstmt.setInt(1, rec.vocab.ordinal());
+			pstmt.setInt(1, rec.source.ordinal());
 			pstmt.setString(2, rec.lccn);
 			pstmt.setString(3, rec.authorativeLabel);
 			pstmt.setString(4, rec.catalogId());

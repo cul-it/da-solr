@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import com.apicatalog.jsonld.JsonLdError;
 
-import edu.cornell.library.integration.authority.AuthoritySource;
+import edu.cornell.library.integration.authority.mads.AuthoritySource;
 import edu.cornell.library.integration.authority.mads.DbUtils;
 import edu.cornell.library.integration.authority.mads.HeadingType;
 import edu.cornell.library.integration.authority.mads.RecordStatus;
@@ -90,7 +90,7 @@ public class BulkDownloadHandlerTest extends CustomDbSetupTest {
 			ResultSet rs = stmt.executeQuery();
 			assertEquals(true, rs.next());
 			assertEquals("n 00000001", rs.getString("lccn"));
-			assertEquals(AuthoritySource.valueOf("NAF").ordinal(), rs.getInt("vocabulary"));
+			assertEquals(AuthoritySource.valueOf("LCNAF").ordinal(), rs.getInt("source"));
 			assertEquals(RecordStatus.valueOf("REVISED").ordinal(), rs.getInt("recordStatus"));
 			assertEquals("McQuerry, Maureen, 1955-", rs.getString("heading"));
 			assertEquals(HeadingType.valueOf("PERSONAL_NAME").ordinal(), rs.getInt("headingType"));

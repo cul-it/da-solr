@@ -1,5 +1,9 @@
 package edu.cornell.library.integration.authority.mads;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public enum AuthoritySource {
 	/*
 	 * Enumeration of authority sources.
@@ -20,6 +24,13 @@ public enum AuthoritySource {
 	private AuthoritySource(final String name, final String idPrefix) {
 		this.name = name;
 		this.idPrefix = idPrefix;
+	}
+
+	private static final Map<Integer,AuthoritySource> _byOrdinal =
+			Stream.of(AuthoritySource.values()).collect(Collectors.toMap(s -> s.ordinal(), s -> s));
+
+	public static AuthoritySource byOrdinal( int ordinal ) {
+		return _byOrdinal.get(ordinal);
 	}
 
 	@Override

@@ -14,8 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.apicatalog.jsonld.JsonLdError;
 
-import edu.cornell.library.integration.authority.AuthoritySource;
-
 public class JsonldUtilsTest {
 	static Map<String, Path> resources = new LinkedHashMap<>();
 
@@ -39,7 +37,7 @@ public class JsonldUtilsTest {
 		AuthorityData data = JsonldUtils.parseAuthorityData(content);
 		assertEquals("http://id.loc.gov/authorities/names/n00000001", data.id);
 		assertEquals("n 00000001", data.lccn);
-		assertEquals(AuthoritySource.valueOf("NAF"), data.vocab);
+		assertEquals(AuthoritySource.valueOf("LCNAF"), data.source);
 		assertEquals(RecordStatus.valueOf("REVISED"), data.recordStatus);
 		assertEquals("McQuerry, Maureen, 1955-", data.authorativeLabel);
 		assertEquals(HeadingType.valueOf("PERSONAL_NAME"), data.headingType);
@@ -53,7 +51,7 @@ public class JsonldUtilsTest {
 
 		content = Files.readString(resources.get("subjects_madsrdf_1.json"));
 		data = JsonldUtils.parseAuthorityData(content);
-		assertEquals(AuthoritySource.valueOf("LCSH"), data.vocab);
+		assertEquals(AuthoritySource.valueOf("LCSH"), data.source);
 		assertEquals("ActionScript (Computer program language)", data.authorativeLabel);
 		assertEquals(HeadingType.valueOf("TOPIC"), data.headingType);
 

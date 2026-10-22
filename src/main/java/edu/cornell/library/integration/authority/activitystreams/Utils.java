@@ -31,7 +31,7 @@ public class Utils {
 	public static void addBatch(PreparedStatement insertStmt, AuthorityData data, String addedDate) throws SQLException {
 		insertStmt.setString(1, data.id);
 		insertStmt.setString(2, data.lccn);
-		insertStmt.setInt(3, data.vocab.ordinal());
+		insertStmt.setInt(3, data.source.ordinal());
 		insertStmt.setInt(4, data.recordStatus.ordinal());
 		insertStmt.setString(5, data.authorativeLabel);
 		insertStmt.setInt(6, data.headingType.ordinal());
@@ -40,7 +40,7 @@ public class Utils {
 		insertStmt.setString(9, data.moddate);
 		insertStmt.setString(10, addedDate);
 		insertStmt.setInt(11, data.numUpdates);
-		insertStmt.setString(12, data.source);
+		insertStmt.setString(12, data.jsonld);
 		insertStmt.addBatch();
 	}
 
@@ -97,7 +97,7 @@ public class Utils {
 		// ensureIngestionSequence(authorityDB);
 		return authorityDB.prepareStatement(
 				"""
-REPLACE INTO %s (id,lccn,vocabulary,recordStatus,heading,headingType,isSubdivision,undifferentiated,moddate,addedDate,numUpdates,source)
+REPLACE INTO %s (id,lccn,source,recordStatus,heading,headingType,isSubdivision,undifferentiated,moddate,addedDate,numUpdates,jsonld)
 	VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""".formatted(DbUtils.MADS_UPDATE_TABLE));
 	}
 
@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS `%s` (
 	`ingestId` BIGINT NOT NULL AUTO_INCREMENT,
 	`id` VARCHAR(210) NOT NULL,
 	`lccn` VARCHAR(50) DEFAULT NULL,
-	`vocabulary` TINYINT(4) DEFAULT NULL,
+	`source` TINYINT(4) DEFAULT NULL,
 	`recordStatus` TINYINT(1) DEFAULT NULL,
 	`heading` TEXT DEFAULT NULL,
 	`headingType` TINYINT(4) DEFAULT NULL,
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS `%s` (
 	`moddate` VARCHAR(30) DEFAULT NULL,
 	`addedDate` VARCHAR(30) DEFAULT NULL,
 	`numUpdates` INT DEFAULT 0,
-	`source` JSON NOT NULL,
+	`jsonld` JSON NOT NULL,
 	UNIQUE KEY `unique_id` (`id`, `numUpdates`, `moddate`),
 	UNIQUE KEY `unique_ingest_id` (`ingestId`),
 	KEY `idx_id` (`id`),

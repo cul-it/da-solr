@@ -19,7 +19,6 @@ import com.apicatalog.jsonld.JsonLdErrorCode;
 import com.apicatalog.jsonld.document.Document;
 import com.apicatalog.jsonld.document.JsonDocument;
 
-import edu.cornell.library.integration.authority.AuthoritySource;
 import static edu.cornell.library.integration.authority.mads.Constants.CONTEXT_PREFIXES;
 import jakarta.json.Json;
 import jakarta.json.JsonArray;
@@ -41,21 +40,8 @@ public class JsonldUtils {
 		if (id.startsWith("gf")) return AuthoritySource.LCGFT;
 		if (id.startsWith("sj")) return AuthoritySource.LCJSH;
 		if (id.startsWith("sh")) return AuthoritySource.LCSH;
-		if (id.startsWith("n"))  return AuthoritySource.NAF;
+		if (id.startsWith("n"))  return AuthoritySource.LCNAF;
 		return AuthoritySource.UNK;
-	}
-
-	public static edu.cornell.library.integration.metadata.support.AuthorityData.AuthoritySource translateAuthoritySource(AuthoritySource source) {
-		return switch (source) {
-			// case LC -> edu.cornell.library.integration.metadata.support.AuthorityData.AuthoritySource.LC;
-			case NAF -> edu.cornell.library.integration.metadata.support.AuthorityData.AuthoritySource.LCNAF;
-			case LCSH -> edu.cornell.library.integration.metadata.support.AuthorityData.AuthoritySource.LCSH;
-			case LCGFT -> edu.cornell.library.integration.metadata.support.AuthorityData.AuthoritySource.LCGFT;
-			// case LCJSH -> edu.cornell.library.integration.metadata.support.AuthorityData.AuthoritySource.LCJSH;
-			// case FAST -> edu.cornell.library.integration.metadata.support.AuthorityData.AuthoritySource.FAST;
-			// case OTHER -> edu.cornell.library.integration.metadata.support.AuthorityData.AuthoritySource.OTHER;
-			default -> null;
-		};
 	}
 
 	public static List<String> asList(JsonObject node, String key) {
@@ -262,7 +248,7 @@ public class JsonldUtils {
 
 		String path = new URI(parsed.id).getPath();
 		int lastSlashIndex = path.lastIndexOf('/');
-		parsed.vocab = extractVocab(path.substring(lastSlashIndex + 1));
+		parsed.source = extractVocab(path.substring(lastSlashIndex + 1));
 
 		JsonValue isMemberOf = mainEntry.get("madsrdf:isMemberOfMADSCollection");
 		parsed.undifferentiated = parseUndifferentiated(isMemberOf);
@@ -285,7 +271,7 @@ public class JsonldUtils {
 		try (StringWriter sw = new StringWriter();
 			 JsonWriter jsonWriter = Json.createWriter(sw)) {
 			jsonWriter.write(doc);
-			parsed.source = sw.toString();
+			parsed.jsonld = sw.toString();
 		}
 
 		return parsed;
