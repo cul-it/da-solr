@@ -17,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import com.apicatalog.jsonld.JsonLdError;
 
 import edu.cornell.library.integration.authority.activitystreams.IFetcher;
+import edu.cornell.library.integration.authority.activitystreams.IFetcher.FileFetcher;
+import edu.cornell.library.integration.authority.activitystreams.IFetcher.HttpFetcher;
 import edu.cornell.library.integration.db_test.CustomDbSetupTest;
 import edu.cornell.library.integration.db_test.DbBaseTest;
 
@@ -49,7 +51,9 @@ public class RdaTest extends CustomDbSetupTest {
 			DbBaseTest.executeStmt(extraSqlLines, conn);
 		}
 
-		DbUtils.fetcher = new IFetcher.FileFetcher(rootPath);
+		FileFetcher fileFetcher = new IFetcher.FileFetcher(rootPath);
+		HttpFetcher httpFetcher = new IFetcher.HttpFetcher();
+		DbUtils.fetcher = new IFetcher.TestFetcher(httpFetcher, fileFetcher);
 	}
 
 	@Test

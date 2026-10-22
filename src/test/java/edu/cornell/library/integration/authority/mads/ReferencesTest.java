@@ -17,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import com.apicatalog.jsonld.JsonLdError;
 
 import edu.cornell.library.integration.authority.activitystreams.IFetcher;
+import edu.cornell.library.integration.authority.activitystreams.IFetcher.FileFetcher;
+import edu.cornell.library.integration.authority.activitystreams.IFetcher.HttpFetcher;
 import edu.cornell.library.integration.authority.activitystreams.Utils;
 import edu.cornell.library.integration.authority.mads.References.Relationship;
 import edu.cornell.library.integration.db_test.CustomDbSetupTest;
@@ -56,7 +58,9 @@ public class ReferencesTest extends CustomDbSetupTest {
 		extraInsertSqls = Files.readAllLines(extraInit);
 		custom_setup();
 
-		DbUtils.fetcher = new IFetcher.FileFetcher(rootPath);
+		FileFetcher fileFetcher = new IFetcher.FileFetcher(rootPath);
+		HttpFetcher httpFetcher = new IFetcher.HttpFetcher();
+		DbUtils.fetcher = new IFetcher.TestFetcher(httpFetcher, fileFetcher);
 	}
 
 	@Test
